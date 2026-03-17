@@ -1,0 +1,24 @@
+# Generated HOI4 mod files (rebuilt by build.py)
+common/
+events/
+localisation/
+descriptor.mod
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Test output
+output/

@@ -1,0 +1,191 @@
+###############################################################################
+# DAI Research Module Configuration
+# Dynamic technology prioritisation and research slot management
+###############################################################################
+
+module_name: research
+namespace: dai_research
+enabled_flag: DAI_RESEARCH_ENABLED
+game_rule: dai_research_module
+
+# Research branches with abstract category keys (resolved by profile)
+branches:
+  - abstract: BRANCH_INFANTRY
+    base_weight: 100
+    desc: "Infantry weapons and equipment tech"
+    factors:
+      - desc: "Boost when at war with available manpower"
+        trigger:
+          has_war: "yes"
+          check_variable: { var: dai_manpower_ratio, compare: greater_than, value: 0.3 }
+        factor: 1.5
+      - desc: "Major boost when equipment ratio is critical"
+        trigger:
+          check_variable: { var: dai_equipment_ratio, compare: less_than, value: 0.5 }
+        factor: 2.0
+      - desc: "Reduce priority for high-industry majors (shift to armour/air)"
+        trigger:
+          check_variable: { var: dai_industry_score, compare: greater_than, value: 70 }
+          check_variable_2: { var: dai_effective_intelligence, compare: greater_than, value: 1.2 }
+        factor: 0.7
+      - desc: "Boost when threat is high and not at war yet"
+        trigger:
+          has_war: "no"
+          check_variable: { var: dai_threat_index, compare: greater_than, value: 50 }
+        factor: 1.3
+      - desc: "Survival posture: mass infantry research"
+        trigger:
+          check_variable: { var: dai_strategic_posture, compare: greater_than, value: 4.5 }
+        factor: 2.0
+
+  - abstract: BRANCH_ARMOUR
+    base_weight: 50
+    desc: "Tanks and armoured vehicle tech"
+    factors:
+      - desc: "Boost for industrial powers"
+        trigger:
+          check_variable: { var: dai_industry_score, compare: greater_than, value: 50 }
+        factor: 1.8
+      - desc: "Major boost when intelligence favours armour"
+        trigger:
+          check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.3 }
+          check_variable_2: { var: dai_industry_score, compare: greater_than, value: 60 }
+        factor: 2.0
+      - desc: "Reduce for low-industry nations"
+        trigger:
+          check_variable: { var: dai_industry_score, compare: less_than, value: 30 }
+        factor: 0.3
+      - desc: "Boost when at war and losing (need breakthrough)"
+        trigger:
+          has_war: "yes"
+          check_variable: { var: dai_military_score, compare: less_than, value: 40 }
+        factor: 1.5
+      - desc: "Offensive/total war posture: boost armour research"
+        trigger:
+          check_variable: { var: dai_strategic_posture, compare: greater_than, value: 2.5 }
+        factor: 1.3
+
+  - abstract: BRANCH_AIR
+    base_weight: 60
+    desc: "Aircraft tech (fighters, CAS, bombers)"
+    factors:
+      - desc: "Boost when enemy air superiority is high"
+        trigger:
+          check_variable: { var: dai_air_threat, compare: greater_than, value: 0.4 }
+        factor: 2.5
+      - desc: "Boost for industrial powers who can afford air"
+        trigger:
+          check_variable: { var: dai_industry_score, compare: greater_than, value: 50 }
+        factor: 1.5
+      - desc: "Reduce when industry too low to produce planes"
+        trigger:
+          check_variable: { var: dai_industry_score, compare: less_than, value: 25 }
+        factor: 0.4
+      - desc: "Boost when at war (urgent need)"
+        trigger:
+          has_war: "yes"
+        factor: 1.4
+      - desc: "Offensive/total war posture: boost air research"
+        trigger:
+          check_variable: { var: dai_strategic_posture, compare: greater_than, value: 2.5 }
+        factor: 1.3
+
+  - abstract: BRANCH_NAVAL
+    base_weight: 30
+    desc: "Ship and submarine tech"
+    factors:
+      - desc: "Boost for nations with naval threat"
+        trigger:
+          check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.3 }
+        factor: 2.0
+      - desc: "Boost when convoys are threatened"
+        trigger:
+          check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.6 }
+        factor: 2.5
+      - desc: "Reduce for landlocked or low-industry nations"
+        trigger:
+          check_variable: { var: dai_industry_score, compare: less_than, value: 20 }
+        factor: 0.2
+      - desc: "Moderate boost for major powers (maintain fleet)"
+        trigger:
+          check_variable: { var: dai_gps, compare: greater_than, value: 60 }
+        factor: 1.3
+
+  - abstract: BRANCH_INDUSTRY
+    base_weight: 80
+    desc: "Factories, construction, resources"
+    factors:
+      - desc: "High priority early (before war)"
+        trigger:
+          has_war: "no"
+        factor: 1.8
+      - desc: "Reduce once at war (shift to military techs)"
+        trigger:
+          has_war: "yes"
+        factor: 0.6
+      - desc: "Boost for low-industry nations (catch up)"
+        trigger:
+          check_variable: { var: dai_industry_score, compare: less_than, value: 30 }
+        factor: 1.5
+      - desc: "Smart AI keeps some industry research even at war"
+        trigger:
+          has_war: "yes"
+          check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.3 }
+        factor: 1.3
+      - desc: "Buildup posture: prioritise industry"
+        trigger:
+          check_variable: { var: dai_strategic_posture, compare: less_than, value: 0.5 }
+        factor: 1.5
+
+  - abstract: BRANCH_ELECTRONICS
+    base_weight: 40
+    desc: "Radar, encryption, computing"
+    factors:
+      - desc: "Boost for high-intelligence nations"
+        trigger:
+          check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.2 }
+        factor: 1.8
+      - desc: "Boost for major powers"
+        trigger:
+          check_variable: { var: dai_gps, compare: greater_than, value: 60 }
+        factor: 1.5
+      - desc: "Reduce for minors"
+        trigger:
+          check_variable: { var: dai_gps, compare: less_than, value: 25 }
+        factor: 0.5
+      - desc: "Boost when air threat high (radar helps)"
+        trigger:
+          check_variable: { var: dai_air_threat, compare: greater_than, value: 0.5 }
+        factor: 1.4
+
+  - abstract: BRANCH_DOCTRINE
+    base_weight: 70
+    desc: "Land/naval/air doctrine"
+    factors:
+      - desc: "Boost when at war (doctrine matters most)"
+        trigger:
+          has_war: "yes"
+        factor: 1.8
+      - desc: "Steady priority pre-war for smart AI"
+        trigger:
+          has_war: "no"
+          check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.0 }
+        factor: 1.3
+      - desc: "Boost when threat is imminent"
+        trigger:
+          check_variable: { var: dai_threat_index, compare: greater_than, value: 60 }
+        factor: 1.5
+      - desc: "Reduce for very low industry (focus on basics)"
+        trigger:
+          check_variable: { var: dai_industry_score, compare: less_than, value: 15 }
+        factor: 0.6
+
+# Research game rule options
+game_rule_options:
+  research_focus:
+    - name: historical
+      desc: "AI follows historically plausible research patterns"
+    - name: adaptive
+      desc: "AI dynamically prioritises based on game state (default)"
+    - name: meta_optimal
+      desc: "AI min-maxes research order for maximum efficiency"

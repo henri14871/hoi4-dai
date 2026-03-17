@@ -1,0 +1,5 @@
+preset_name: historical
+global_multiplier: 1.2
+flag_name: DAI_PRESET_HISTORICAL
+description: "AI follows historically plausible behaviour for the active mod. Reads biases from the compatibility profile."
+uses_profile_biases: true

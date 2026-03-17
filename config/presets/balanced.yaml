@@ -1,0 +1,4 @@
+preset_name: balanced
+global_multiplier: 1.0
+flag_name: DAI_PRESET_BALANCED
+description: "Default. AI plays competently across all areas. Suitable for most players."

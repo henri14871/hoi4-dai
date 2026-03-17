@@ -1,0 +1,180 @@
+###############################################################################
+# DAI Vanilla Profile
+# Maps abstract DAI categories to vanilla Hearts of Iron IV content IDs
+###############################################################################
+
+profile_name: vanilla
+game_version: "1.15.*"
+description: "Vanilla Hearts of Iron IV"
+is_default: true
+priority: 0
+
+# Auto-detection: vanilla is the fallback when no overhaul mod is detected.
+# Each non-vanilla profile defines detection_hints (techs/units that only
+# exist in that mod).  If none match, vanilla wins.
+detection_hints:
+  # Vanilla-specific techs that most overhaul mods remove or rename
+  has_tech_category: [infantry_weapons, armor, electronics]
+
+# Technology category mappings
+# Abstract DAI branch -> list of vanilla technology_tags tokens
+tech_categories:
+  BRANCH_INFANTRY:    [infantry_weapons]
+  BRANCH_ARMOUR:      [armor, cat_light_armor, cat_medium_armor, cat_heavy_armor]
+  BRANCH_AIR:         [light_air, medium_air, heavy_air, naval_air]
+  BRANCH_NAVAL:       [naval_equipment]
+  BRANCH_INDUSTRY:    [industry]
+  BRANCH_ELECTRONICS: [electronics]
+  BRANCH_DOCTRINE:    [land_doctrine, naval_doctrine, air_doctrine]
+
+# Sub-unit type mappings
+# Abstract DAI role -> list of vanilla sub-unit type tokens
+sub_units:
+  ROLE_LINE_INFANTRY: [infantry]
+  ROLE_BREAKTHROUGH:  [medium_armor, heavy_armor, modern_armor]
+  ROLE_MOBILE:        [motorized, mechanized]
+  ROLE_GARRISON:      [cavalry]
+  ROLE_SPECIAL:       [marine, mountaineers, paratrooper]
+
+# Support company mappings
+support_units:
+  engineer: engineer
+  recon: recon
+  artillery: artillery
+  anti_tank: anti_tank
+  anti_air: anti_air
+  logistics: logistics
+  maintenance: maintenance
+  signal: signal
+  field_hospital: field_hospital
+  military_police: military_police
+
+# Equipment archetype mappings
+# Abstract DAI equip category -> list of vanilla equipment archetype tokens
+equipment:
+  EQUIP_INFANTRY:     [infantry_equipment]
+  EQUIP_ARTILLERY:    [artillery_equipment]
+  EQUIP_ANTI_TANK:    [anti_tank_equipment]
+  EQUIP_ANTI_AIR:     [anti_air_equipment]
+  EQUIP_MOTORIZED:    [motorized_equipment, mechanized_equipment]
+  EQUIP_ARMOUR:       [light_tank_chassis, medium_tank_chassis, heavy_tank_chassis, modern_tank_chassis]
+  EQUIP_FIGHTER:      [single_engine_airframe]
+  EQUIP_CAS:          [single_engine_airframe]
+  EQUIP_BOMBER:       [twin_engine_airframe, quad_engine_airframe]
+  EQUIP_CAPITAL_SHIP: [ship_hull_heavy, ship_hull_carrier]
+  EQUIP_SCREEN:       [ship_hull_light, ship_hull_cruiser]
+  EQUIP_SUBMARINE:    [ship_hull_submarine]
+  EQUIP_CONVOY:       [convoy]
+  EQUIP_SUPPORT:      [support_equipment]
+
+# Ideology mappings
+# Vanilla ideology tokens -> DAI abstract political categories
+ideologies:
+  democratic:  { category: defensive,  aggression: -0.15 }
+  communism:   { category: moderate,   aggression: 0.15 }
+  fascism:     { category: aggressive, aggression: 0.30 }
+  neutrality:  { category: neutral,    aggression: 0.0 }
+
+# Economy law progression (in order of mobilisation level)
+economy_laws:
+  - civilian_economy
+  - low_economic_mobilisation
+  - partial_economic_mobilisation
+  - war_economy
+  - tot_economic_mobilisation
+
+# Conscription law progression
+conscription_laws:
+  - volunteer_only
+  - limited_conscription
+  - extensive_conscription
+  - service_by_requirement
+  - all_adults_serve
+  - scraping_the_barrel
+
+# Trade law options
+trade_laws:
+  - free_trade
+  - export_focus
+  - limited_exports
+  - closed_economy
+
+# Map area names (used for theatre-level ai_strategy area_priority)
+# Only areas listed here will have area_priority blocks generated.
+# Mods with custom maps should list their own area names.
+# If absent, area_priority section is skipped entirely.
+area_mappings:
+  - europe
+  - asia
+  - pacific
+  - africa
+  - middle_east
+  - south_america
+  - north_america
+
+# =============================================================================
+# Historical Biases (only active with Historical preset)
+# These describe CONDITIONS, not countries. Any nation matching the
+# conditions gets the bias. Germany matches "industrial power with
+# hostile neighbours on flat terrain" in 1936 — but if another nation
+# matches those conditions, it gets the same biases.
+# =============================================================================
+historical_biases:
+
+  research_bias:
+    # Industrial powers with strong armour base bias toward armour research
+    - condition: "High industry + flat terrain borders"
+      trigger:
+        check_variable: { var: dai_industry_score, compare: greater_than, value: 60 }
+      branch_boost: BRANCH_ARMOUR
+      weight: 1.3
+
+    # Island nations or nations with major coastlines bias toward naval
+    - condition: "Naval power with coastline exposure"
+      trigger:
+        check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.2 }
+      branch_boost: BRANCH_NAVAL
+      weight: 1.4
+
+    # Nations with high air threat bias toward air research
+    - condition: "Under air pressure"
+      trigger:
+        check_variable: { var: dai_air_threat, compare: greater_than, value: 0.3 }
+      branch_boost: BRANCH_AIR
+      weight: 1.5
+
+    # Large manpower nations bias toward infantry and doctrine
+    - condition: "Manpower-rich nation"
+      trigger:
+        check_variable: { var: dai_manpower_ratio, compare: greater_than, value: 0.7 }
+      branch_boost: BRANCH_DOCTRINE
+      weight: 1.2
+
+  strategy_bias:
+    # Resource-starved industrial powers bias toward early aggression
+    - condition: "Industrial but resource-poor"
+      trigger:
+        check_variable: { var: dai_industry_score, compare: greater_than, value: 50 }
+        check_variable_2: { var: dai_resource_need, compare: greater_than, value: 0.5 }
+      aggression_add: 0.1
+
+    # Strong defensive geography nations bias toward fortification
+    - condition: "Defensive position with low threat"
+      trigger:
+        check_variable: { var: dai_threat_index, compare: less_than, value: 30 }
+        check_variable_2: { var: dai_political_aggression, compare: less_than, value: 0 }
+      aggression_add: -0.1
+
+  economy_bias:
+    # Large civilian economies bias toward late mobilisation
+    - condition: "Strong civilian economy"
+      trigger:
+        check_variable: { var: dai_industry_score, compare: greater_than, value: 50 }
+        check_variable_2: { var: dai_political_mil_priority, compare: less_than, value: 0 }
+      mobilisation_delay: true
+
+    # Nations with imminent threats mobilise rapidly regardless
+    - condition: "Imminent threat overrides delay"
+      trigger:
+        check_variable: { var: dai_threat_index, compare: greater_than, value: 60 }
+      mobilisation_delay: false

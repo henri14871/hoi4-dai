@@ -1,0 +1,94 @@
+###############################################################################
+# DAI Core Framework Configuration
+# GPS engine, shared variables, evaluation tiers
+###############################################################################
+
+version: "1.0.0"
+supported_version: "1.15.*"
+namespace: dai_core
+
+# Bucket-staggered evaluation (proven ARM pattern)
+evaluation:
+  stagger_buckets: 6
+  tiers:
+    major:
+      gps_min: 60
+      eval: full
+      frequency: every_cycle
+    regional:
+      gps_min: 25
+      eval: full
+      frequency: every_cycle
+    minor:
+      gps_min: 0
+      eval: lightweight
+      frequency: every_other
+    inactive:
+      gps_min: -1
+      eval: none
+      frequency: never
+
+# GPS formula weights (must sum to 1.0)
+gps_formula:
+  industry_weight: 0.35
+  military_weight: 0.30
+  tech_weight: 0.20
+  strategic_weight: 0.15
+
+# GPS -> competence scalar (piecewise linear interpolation)
+competence_mapping:
+  points:
+    - [0,   0.70]
+    - [20,  0.80]
+    - [40,  0.95]
+    - [60,  1.10]
+    - [80,  1.25]
+    - [100, 1.40]
+
+# Shared country-scoped variables
+variables:
+  - { name: dai_gps,                     range: [0, 100],    desc: "Global Power Score" }
+  - { name: dai_competence,              range: [0.7, 1.4],  desc: "Power-based competence scalar" }
+  - { name: dai_effective_intelligence,  range: [0.35, 2.8], desc: "Final intelligence (preset * competence)" }
+  - { name: dai_threat_index,            range: [0, 100],    desc: "Threat from hostile neighbours" }
+  - { name: dai_industry_score,          range: [0, 100],    desc: "Industrial strength sub-score" }
+  - { name: dai_military_score,          range: [0, 100],    desc: "Military strength sub-score" }
+  - { name: dai_tech_score,              range: [0, 100],    desc: "Technology advancement sub-score" }
+  - { name: dai_resource_need,           range: [0, 1.0],    desc: "Resource starvation level" }
+  - { name: dai_air_threat,              range: [0, 1.0],    desc: "Enemy air superiority intensity" }
+  - { name: dai_naval_threat,            range: [0, 1.0],    desc: "Enemy naval threat level" }
+  - { name: dai_manpower_ratio,          range: [0, 1.0],    desc: "Manpower availability ratio" }
+  - { name: dai_equipment_ratio,         range: [0, 1.0],    desc: "Equipment stockpile health" }
+  - { name: dai_political_aggression,    range: [-0.3, 0.3], desc: "Ideology aggression modifier" }
+  - { name: dai_political_mil_priority,  range: [-0.3, 0.3], desc: "Ideology military urgency" }
+  - { name: dai_political_diplo_stance,  range: [-0.3, 0.3], desc: "Ideology diplomatic modifier" }
+  - { name: dai_political_doctrine_bias, range: [-0.3, 0.3], desc: "Ideology doctrine preference" }
+  - { name: dai_supply_strain,           range: [0, 1.0],    desc: "Logistics stress level" }
+  - { name: dai_occupied_territory_size, range: [0, 100],    desc: "Occupied non-core territory scale" }
+  - { name: dai_needs_override_active,   range: [0, 1],      desc: "Critical needs failsafe flag" }
+  - { name: dai_needs_priority,          range: [0, 100],    desc: "Critical need urgency score" }
+  - { name: dai_strategic_posture,       range: [0, 5],      desc: "Strategic posture (0=Buildup..5=Survival)" }
+  - { name: dai_enemy_armor_threat,      range: [0, 1.0],    desc: "Enemy armoured force pressure" }
+
+# Political modifier values per ideology
+ideology_modifiers:
+  fascism:
+    aggression: 0.30
+    mil_priority: 0.25
+    diplo_stance: 0.20
+    doctrine_bias: 0.15
+  communism:
+    aggression: 0.15
+    mil_priority: 0.15
+    diplo_stance: 0.10
+    doctrine_bias: 0.10
+  democratic:
+    aggression: -0.15
+    mil_priority: -0.15
+    diplo_stance: -0.10
+    doctrine_bias: -0.05
+  neutrality:
+    aggression: 0.0
+    mil_priority: 0.0
+    diplo_stance: 0.0
+    doctrine_bias: 0.0

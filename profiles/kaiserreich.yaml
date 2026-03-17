@@ -1,0 +1,171 @@
+# Auto-generated DAI profile for Kaiserreich: Legacy of the Weltkrieg
+# Review and adjust mappings before use
+
+profile_name: kaiserreich
+game_version: "1.15.*"
+description: "Kaiserreich: Legacy of the Weltkrieg"
+priority: 10
+detection_hints:
+  # Kaiserreich sets this flag on startup
+  has_global_flag: [KR_launched]
+area_mappings: [europe, asia, pacific, africa, middle_east, south_america, north_america]
+tech_categories:
+  BRANCH_INFANTRY:
+  - infantry_tech
+  - infantry_weapons
+  BRANCH_ARMOUR:
+  - cat_medium_armor
+  - cat_heavy_armor
+  - mio_cat_tech_all_armor_and_modules
+  - cat_anti_tank
+  - cat_armored_cars
+  - cat_light_armor
+  - Tank
+  - armor
+  - naval_armor
+  - mio_cat_tech_heavy_armor_and_modules
+  - ARMORED
+  - mio_cat_tech_medium_armor_and_modules
+  - mio_cat_tech_light_armor_and_modules
+  BRANCH_AIR:
+  - heavy_air
+  - Bomber
+  - mio_cat_all_medium_aircraft_and_modules
+  - Fighter
+  - mio_cat_all_light_fighter_and_modules
+  - medium_air
+  - mio_cat_all_heavy_aircraft_and_modules
+  - bomber
+  - air_equipment
+  - cat_anti_air
+  - mio_cat_all_light_aircraft_and_modules
+  - light_fighter
+  - mio_cat_all_naval_bomber_and_modules
+  - cat_air_engine
+  - CAS
+  - cat_heavy_fighter
+  - mio_cat_all_cas_and_modules
+  - cat_strategic_bomber
+  - air_doctrine
+  - light_air
+  - tactical_bomber
+  - naval_bomber
+  - cat_air_guns
+  - cas_bomber
+  - naval_air
+  - cat_air_bombs
+  - AIRCRAFT
+  - fighter
+  BRANCH_NAVAL:
+  - naval_doctrine
+  - ss_tech
+  - cat_torpedoes
+  - cat_ship_light_battery
+  - Torpedo
+  - mio_cat_tech_all_screen_ship_and_modules
+  - naval_equipment
+  - naval_minesweeping
+  - naval_minelaying
+  - naval_artillery
+  - ship_modules_tech
+  - bb_tech
+  - cat_ship_medium_battery
+  - mio_cat_tech_all_submarine_and_modules
+  - naval
+  - mio_cat_tech_all_capital_ship_and_modules
+  - cat_ship_heavy_battery
+  - dd_tech
+  - Naval
+  - naval_mines
+  BRANCH_INDUSTRY:
+  - dispersed_industry_category
+  - concentrated_industry_category
+  - synth_resources
+  - industry
+  - cat_synth_rubber
+  - cat_synth_oil
+  - construction_tech
+  BRANCH_ELECTRONICS:
+  - electronics
+  - encryption_tech
+  - radar_tech
+  - computing_tech
+  BRANCH_DOCTRINE:
+  - cat_marines_doctrine
+  - cat_rangers_doctrine
+  - special_forces_doctrine
+  - cat_paratroopers_doctrine
+  - land_doctrine
+  - cat_mountaineers_doctrine
+sub_units:
+  ROLE_LINE_INFANTRY:
+  - militia
+  - infantry
+  - irregular_infantry
+  ROLE_BREAKTHROUGH:
+  - amphibious_heavy_armor
+  - amphibious_medium_armor
+  ROLE_MOBILE:
+  - mechanized
+  - motorized
+  ROLE_GARRISON:
+  - camelry
+  - cavalry
+  ROLE_SPECIAL:
+  - marine
+  - amphibious_armor
+  - ranger_battalion
+  - amphibious_light_armor
+  - mountaineers
+  - paratrooper
+  - amphibious
+  - marine_commando
+equipment:
+  EQUIP_INFANTRY: []
+  EQUIP_ARMOUR:
+  - amphibious_tank_chassis
+  - medium_tank_chassis
+  - heavy_tank_chassis
+  - modern_tank_chassis
+  - super_heavy_tank_chassis
+  EQUIP_FIGHTER: []
+  EQUIP_CAS: []
+  EQUIP_BOMBER: []
+  EQUIP_CAPITAL_SHIP: []
+  EQUIP_SCREEN: []
+  EQUIP_SUBMARINE: []
+  EQUIP_CONVOY: []
+  EQUIP_SUPPORT: []
+  EQUIP_ARTILLERY:
+  - super_heavy_artillery_equipment
+  - self_propelled_super_heavy_artillery_equipment
+  - rocket_artillery_equipment
+  EQUIP_ANTI_TANK: []
+  EQUIP_ANTI_AIR: []
+  EQUIP_MOTORIZED: []
+ideologies:
+- national_populist_subtype
+- paternal_autocrat_subtype
+- totalist_subtype
+- types
+- market_liberal_subtype
+- ideologies
+- syndicalist
+- syndicalist_subtype
+- radical_socialist_subtype
+- authoritarian_democrat
+- social_democrat_subtype
+- social_liberal
+- modifiers
+- market_liberal
+- social_democrat
+- paternal_autocrat
+- social_conservative_subtype
+- rules
+- social_conservative
+- authoritarian_democrat_subtype
+- totalist
+- social_liberal_subtype
+- national_populist
+- color
+- radical_socialist

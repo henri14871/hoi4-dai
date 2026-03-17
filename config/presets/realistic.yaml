@@ -1,0 +1,4 @@
+preset_name: realistic
+global_multiplier: 1.3
+flag_name: DAI_PRESET_REALISTIC
+description: "AI plays with near-optimal efficiency. Major powers are formidable, minor nations are scrappy."

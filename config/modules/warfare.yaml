@@ -1,0 +1,579 @@
+###############################################################################
+# DAI Warfare Module Configuration
+# Front strategy, naval operations, and air wing management
+###############################################################################
+
+module_name: warfare
+namespace: dai_warfare
+enabled_flag: DAI_WARFARE_ENABLED
+game_rule: dai_warfare_module
+
+# =============================================================================
+# Land Strategies (profile-independent — uses generic types/IDs)
+# =============================================================================
+land_strategies:
+
+  # --- Role ratios: how the AI distributes division types ---
+  - type: role_ratio
+    entries:
+      - id: infantry
+        base_value: 70
+        desc: "Infantry as backbone"
+        factors:
+          - desc: "Increase at war when manpower available"
+            trigger: { has_war: "yes", check_variable: { var: dai_manpower_ratio, compare: greater_than, value: 0.3 } }
+            factor: 1.3
+          - desc: "Decrease for high-industry nations (shift to armour)"
+            trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 60 } }
+            factor: 0.8
+
+      - id: armor
+        base_value: 10
+        desc: "Armoured divisions for breakthrough"
+        factors:
+          - desc: "Boost for industrial powers"
+            trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 50 } }
+            factor: 2.5
+          - desc: "Major boost for high-intelligence majors"
+            trigger: { check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.3 } }
+            factor: 1.5
+          - desc: "Suppress for low-industry nations"
+            trigger: { check_variable: { var: dai_industry_score, compare: less_than, value: 30 } }
+            factor: 0.1
+          - desc: "Offensive posture: more armour"
+            trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 2.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 3.5 } }
+            factor: 2.0
+          - desc: "Defensive posture: fewer armour"
+            trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 0.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 1.5 } }
+            factor: 0.5
+
+      - id: motorized
+        base_value: 5
+        desc: "Motorized for exploitation"
+        factors:
+          - desc: "Boost for industrial powers"
+            trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 45 } }
+            factor: 2.0
+          - desc: "Suppress for minors"
+            trigger: { check_variable: { var: dai_industry_score, compare: less_than, value: 25 } }
+            factor: 0.1
+
+      - id: garrison
+        base_value: 10
+        desc: "Garrison divisions for occupied territory"
+        factors:
+          - desc: "Boost when at war (occupied territory)"
+            trigger: { has_war: "yes" }
+            factor: 1.5
+          - desc: "Major boost for large occupation"
+            trigger: { has_war: "yes", check_variable: { var: dai_occupied_territory_size, compare: greater_than, value: 40 } }
+            factor: 2.0
+          - desc: "Extreme boost for massive occupation"
+            trigger: { has_war: "yes", check_variable: { var: dai_occupied_territory_size, compare: greater_than, value: 70 } }
+            factor: 1.5
+          - desc: "Boost for high threat (homeland defense)"
+            trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 60 } }
+            factor: 1.5
+          - desc: "Major powers need more garrisons"
+            trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
+            factor: 1.3
+          - desc: "Defensive/survival posture: more garrisons"
+            trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 0.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 1.5 } }
+            factor: 2.0
+          - desc: "Reduce when not at war"
+            trigger: { has_war: "no" }
+            factor: 0.3
+
+      - id: mountaineers
+        base_value: 3
+        desc: "Mountain troops"
+        factors:
+          - desc: "Only for majors/regionals"
+            trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 40 } }
+            factor: 2.0
+          - desc: "Suppress for minors"
+            trigger: { check_variable: { var: dai_gps, compare: less_than, value: 25 } }
+            factor: 0.1
+
+      - id: marines
+        base_value: 2
+        desc: "Marines for amphibious operations"
+        factors:
+          - desc: "Boost for naval powers"
+            trigger: { check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.2 } }
+            factor: 2.0
+
+  # --- Offensive/defensive posture ---
+  - type: front_unit_request
+    entries:
+      - id: front_base
+        base_value: 20
+        desc: "Base front unit request — how many divisions per front"
+        factors:
+          - desc: "More divisions when at war"
+            trigger: { has_war: "yes" }
+            factor: 1.5
+          - desc: "Even more when losing"
+            trigger: { has_war: "yes", check_variable: { var: dai_military_score, compare: less_than, value: 30 } }
+            factor: 1.8
+
+  # --- AI wanted divisions scaling ---
+  - type: ai_wanted_divisions_factor
+    entries:
+      - id: division_count_scaling
+        base_value: 0
+        desc: "Adjust total desired division count"
+        factors:
+          - desc: "Smart AI wants fewer, better divisions"
+            trigger: { check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.3 } }
+            factor_add: -15
+          - desc: "Major powers want more"
+            trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
+            factor_add: 10
+
+# =============================================================================
+# Naval Strategies (per-profile for ship type references)
+# =============================================================================
+naval_strategies:
+  # Unit ratios for fleet composition
+  - abstract_equip: EQUIP_SCREEN
+    type: unit_ratio
+    id: screen_ship
+    base_value: 50
+    desc: "Screen ships (destroyers, light cruisers)"
+    factors:
+      - desc: "Boost when convoy escort needed"
+        trigger: { check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.3 } }
+        factor: 1.8
+      - desc: "Boost for major naval powers"
+        trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 50 } }
+        factor: 1.3
+
+  - abstract_equip: EQUIP_CAPITAL_SHIP
+    type: unit_ratio
+    id: capital_ship
+    base_value: 15
+    desc: "Capital ships (battleships, carriers)"
+    factors:
+      - desc: "Boost for major powers with industry"
+        trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 60 } }
+        factor: 2.0
+      - desc: "Suppress for low industry"
+        trigger: { check_variable: { var: dai_industry_score, compare: less_than, value: 35 } }
+        factor: 0.2
+
+  - abstract_equip: EQUIP_SUBMARINE
+    type: unit_ratio
+    id: submarine
+    base_value: 20
+    desc: "Submarines for convoy raiding"
+    factors:
+      - desc: "Boost when at war with naval power"
+        trigger: { has_war: "yes", check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.3 } }
+        factor: 2.0
+      - desc: "Boost for resource-starved nations (deny trade)"
+        trigger: { check_variable: { var: dai_resource_need, compare: greater_than, value: 0.5 } }
+        factor: 1.5
+
+  - abstract_equip: EQUIP_CONVOY
+    type: unit_ratio
+    id: convoy
+    base_value: 30
+    desc: "Convoys for trade and supply"
+    factors:
+      - desc: "Boost when at war"
+        trigger: { has_war: "yes" }
+        factor: 1.5
+      - desc: "High priority when naval threat"
+        trigger: { check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.4 } }
+        factor: 2.0
+
+  # General naval posture strategies
+  - type: naval_invasion_focus
+    base_value: 0
+    desc: "Willingness to plan naval invasions"
+    factors:
+      - desc: "Boost when winning at sea"
+        trigger: { has_war: "yes" }
+        factor_add: 20
+      - desc: "Major boost for aggressive AI"
+        trigger: { check_variable: { var: dai_political_aggression, compare: greater_than, value: 0.1 } }
+        factor_add: 15
+
+  - type: dockyard_to_military_factory_ratio
+    base_value: 15
+    desc: "Dockyard vs military factory balance"
+    factors:
+      - desc: "More dockyards when naval threat high"
+        trigger: { check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.4 } }
+        factor_add: 15
+      - desc: "Fewer dockyards for landlocked/minor"
+        trigger: { check_variable: { var: dai_gps, compare: less_than, value: 25 } }
+        factor_add: -10
+
+# =============================================================================
+# Air Strategies (per-profile for aircraft type references)
+# =============================================================================
+air_strategies:
+  # Air unit production ratios
+  - abstract_equip: EQUIP_FIGHTER
+    type: unit_ratio
+    id: fighter
+    base_value: 100
+    desc: "Fighter aircraft for air superiority"
+    factors:
+      - desc: "Major boost when air threat high"
+        trigger: { check_variable: { var: dai_air_threat, compare: greater_than, value: 0.4 } }
+        factor: 2.0
+      - desc: "Boost at war"
+        trigger: { has_war: "yes" }
+        factor: 1.5
+      - desc: "Reduce for very low industry"
+        trigger: { check_variable: { var: dai_industry_score, compare: less_than, value: 20 } }
+        factor: 0.3
+
+  - abstract_equip: EQUIP_CAS
+    type: unit_ratio
+    id: cas
+    base_value: 50
+    desc: "Close air support"
+    factors:
+      - desc: "Boost when at war (offensive support)"
+        trigger: { has_war: "yes" }
+        factor: 2.0
+      - desc: "Boost for aggressive AI"
+        trigger: { check_variable: { var: dai_political_aggression, compare: greater_than, value: 0.1 } }
+        factor: 1.3
+      - desc: "Reduce for low industry"
+        trigger: { check_variable: { var: dai_industry_score, compare: less_than, value: 30 } }
+        factor: 0.4
+
+  - abstract_equip: EQUIP_BOMBER
+    type: unit_ratio
+    id: tactical_bomber
+    base_value: 20
+    desc: "Tactical/strategic bombers"
+    factors:
+      - desc: "Boost for major powers"
+        trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
+        factor: 2.0
+      - desc: "Suppress for minors"
+        trigger: { check_variable: { var: dai_gps, compare: less_than, value: 30 } }
+        factor: 0.2
+
+  # Air factory balance
+  - type: air_factory_balance
+    entries:
+      - id: fighter
+        base_value: 60
+        desc: "Fighter production share"
+        factors:
+          - desc: "More fighters when air threatened"
+            trigger: { check_variable: { var: dai_air_threat, compare: greater_than, value: 0.5 } }
+            factor_add: 20
+      - id: cas
+        base_value: 25
+        desc: "CAS production share"
+        factors:
+          - desc: "More CAS when attacking"
+            trigger: { has_war: "yes" }
+            factor_add: 10
+      - id: tactical_bomber
+        base_value: 15
+        desc: "Tactical bomber production share"
+
+# =============================================================================
+# Invasion Strategies (profile-independent)
+# =============================================================================
+invasion_strategies:
+  - type: naval_invasion_focus
+    base_value: 0
+    desc: "General invasion willingness"
+    factors:
+      - desc: "Enable when invasion readiness is high"
+        trigger: { has_war: "yes", check_variable: { var: dai_war_invasion_readiness, compare: greater_than, value: 60 } }
+        factor_add: 50
+      - desc: "Moderate willingness with decent readiness"
+        trigger: { has_war: "yes", check_variable: { var: dai_war_invasion_readiness, compare: greater_than, value: 40 } }
+        factor_add: 25
+      - desc: "Boost for aggressive nations"
+        trigger: { check_variable: { var: dai_political_aggression, compare: greater_than, value: 0.15 } }
+        factor_add: 15
+      - desc: "Suppress when supply strained"
+        trigger: { check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.6 } }
+        factor_add: -30
+      - desc: "Suppress when equipment critical"
+        trigger: { check_variable: { var: dai_equipment_ratio, compare: less_than, value: 0.4 } }
+        factor_add: -40
+
+# =============================================================================
+# Deep Frontline Control System
+# Priority-based front_control cascade, dynamic armour steering,
+# force concentration, theatre allocation, and front unit requests.
+# All dynamic — no country tags, state IDs, or dates.
+# =============================================================================
+frontline_strategies:
+
+  # --- FRONT CONTROL TIERS (priority cascade) ---
+  # HOI4 picks the highest-priority plan whose enable block is true.
+  front_control_tiers:
+    - name: emergency_stop
+      priority: 10000
+      execution_type: careful
+      execute_order: "no"
+      manual_attack: "no"
+      desc: "Emergency halt — nation collapsing, preserve remaining forces"
+      enable_triggers:
+        - { type: has_war, value: "yes" }
+        - { type: surrender_progress_gt, value: 0.4 }
+        - { type: check_variable, var: dai_equipment_ratio, compare: less_than, value: 0.25 }
+
+    - name: pocket_closure
+      priority: 9000
+      execution_type: rush
+      execute_order: "yes"
+      manual_attack: "yes"
+      desc: "Pocket closure — enemy fronts extremely weak, close encirclements"
+      enable_triggers:
+        - { type: has_war, value: "yes" }
+      enemy_triggers:
+        - { type: enemies_strength_ratio_lt, value: 0.3 }
+
+    - name: opportunity_exploit
+      priority: 8000
+      execution_type: rush
+      execute_order: "yes"
+      manual_attack: "yes"
+      desc: "Exploitation — enemy collapsing, finish them"
+      enable_triggers:
+        - { type: has_war, value: "yes" }
+      enemy_triggers:
+        - { type: surrender_progress_gt, value: 0.3 }
+
+    - name: needs_crisis_defense
+      priority: 6000
+      execution_type: careful
+      execute_order: "no"
+      manual_attack: "yes"
+      desc: "Needs crisis — halt offensives while critical shortages are addressed"
+      enable_triggers:
+        - { type: has_war, value: "yes" }
+        - { type: check_variable, var: dai_needs_override_active, compare: greater_than, value: 0.5 }
+        - { type: check_variable, var: dai_equipment_ratio, compare: less_than, value: 0.35 }
+
+    - name: crisis_defense
+      priority: 5000
+      execution_type: careful
+      execute_order: "no"
+      manual_attack: "yes"
+      desc: "Crisis defense — losing badly, hold the line, allow manual counterattacks"
+      enable_triggers:
+        - { type: has_war, value: "yes" }
+        - { type: check_variable, var: dai_war_defensive_priority, compare: greater_than, value: 70 }
+
+    - name: full_offensive
+      priority: 4000
+      execution_type: rush
+      execute_order: "yes"
+      manual_attack: "yes"
+      desc: "Full offensive — overwhelming advantage, rush all fronts"
+      enable_triggers:
+        - { type: has_war, value: "yes" }
+        - { type: check_variable, var: dai_war_offensive_readiness, compare: greater_than, value: 80 }
+        - { type: check_variable, var: dai_equipment_ratio, compare: greater_than, value: 0.7 }
+
+    - name: offensive_push
+      priority: 3000
+      execution_type: rush_weak
+      execute_order: "yes"
+      manual_attack: "yes"
+      desc: "Offensive push — conditions favor attack, rush weak sectors"
+      enable_triggers:
+        - { type: has_war, value: "yes" }
+        - { type: check_variable, var: dai_war_offensive_readiness, compare: greater_than, value: 60 }
+
+    - name: cautious_defense
+      priority: 2000
+      execution_type: careful
+      execute_order: "yes"
+      manual_attack: "yes"
+      desc: "Cautious defense — under pressure, execute orders carefully"
+      enable_triggers:
+        - { type: has_war, value: "yes" }
+        - { type: check_variable, var: dai_war_defensive_priority, compare: greater_than, value: 40 }
+
+    - name: balanced_warfare
+      priority: 1000
+      execution_type: balanced
+      execute_order: "yes"
+      manual_attack: "yes"
+      desc: "Balanced warfare — standard wartime operations (fallback)"
+      enable_triggers:
+        - { type: has_war, value: "yes" }
+
+  # --- FRONT ARMOR SCORES ---
+  # Steer armour toward/away from specific enemies via country_trigger.
+  front_armor_scores:
+    - name: armor_vs_weak_enemy
+      base_value: 100
+      desc: "Concentrate armour against weak enemies for breakthrough"
+      enemy_trigger: { type: enemies_strength_ratio_lt, value: 0.8 }
+      factors:
+        - desc: "Extra concentration for smart AI"
+          trigger: { check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.2 } }
+          factor_add: 50
+        - desc: "Boost when offensive readiness high"
+          trigger: { check_variable: { var: dai_war_offensive_readiness, compare: greater_than, value: 60 } }
+          factor_add: 50
+
+    - name: armor_away_from_strong
+      base_value: -80
+      desc: "Pull armour away from heavily defended/fortified fronts"
+      enemy_trigger: { type: enemies_strength_ratio_gt, value: 1.5 }
+
+    - name: armor_to_collapsing_enemy
+      base_value: 200
+      desc: "Rush armour toward collapsing enemy for exploitation"
+      enemy_trigger: { type: surrender_progress_gt, value: 0.25 }
+
+  # --- FORCE CONCENTRATION ---
+  force_concentration:
+    - name: concentrate_on_weak_sectors
+      base_value: 150
+      desc: "Mass breakthrough forces on weak enemy sectors"
+      triggers:
+        - { type: has_war, value: "yes" }
+        - { type: check_variable, var: dai_war_offensive_readiness, compare: greater_than, value: 55 }
+      factors:
+        - desc: "More concentration for smart AI (Schwerpunkt)"
+          trigger: { check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.3 } }
+          factor_add: 50
+        - desc: "Less concentration when defensive"
+          trigger: { check_variable: { var: dai_war_defensive_priority, compare: greater_than, value: 60 } }
+          factor_add: -100
+
+    - name: spread_when_defending
+      base_value: -50
+      desc: "Spread forces evenly when on the defensive"
+      triggers:
+        - { type: has_war, value: "yes" }
+        - { type: check_variable, var: dai_war_defensive_priority, compare: greater_than, value: 50 }
+
+  # --- FRONT UNIT REQUESTS ---
+  front_unit_requests:
+    - name: wartime_front_boost
+      base_value: 30
+      desc: "Boost division allocation to active fronts during war"
+      triggers:
+        - { type: has_war, value: "yes" }
+      factors:
+        - desc: "Major boost on defensive"
+          trigger: { check_variable: { var: dai_war_defensive_priority, compare: greater_than, value: 50 } }
+          factor_add: 25
+        - desc: "Offensive concentration"
+          trigger: { check_variable: { var: dai_war_offensive_readiness, compare: greater_than, value: 60 } }
+          factor_add: 20
+        - desc: "Smart AI allocates better"
+          trigger: { check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.3 } }
+          factor_add: 15
+        - desc: "Reduce when equipment critical"
+          trigger: { check_variable: { var: dai_equipment_ratio, compare: less_than, value: 0.3 } }
+          factor_add: -20
+        - desc: "Defensive posture: more front allocation"
+          trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 0.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 1.5 } }
+          factor_add: 40
+        - desc: "Offensive posture: concentrated allocation"
+          trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 2.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 3.5 } }
+          factor_add: 20
+
+    - name: peacetime_garrison
+      base_value: -20
+      desc: "Reduce front allocation when at peace"
+      triggers:
+        - { type: has_war, value: "no" }
+
+  # --- AREA PRIORITIES (theatre-level allocation) ---
+  # Area names are universal across all mods (engine-level geography).
+  area_priorities:
+    - area: europe
+      base_value: 50
+      desc: "European theatre"
+      factors:
+        - desc: "Boost when at war"
+          trigger: { has_war: "yes" }
+          factor_add: 30
+        - desc: "Boost when threatened"
+          trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 40 } }
+          factor_add: 30
+    - area: asia
+      base_value: 30
+      desc: "Asian theatre"
+      factors:
+        - desc: "Boost when at war"
+          trigger: { has_war: "yes" }
+          factor_add: 20
+    - area: pacific
+      base_value: 20
+      desc: "Pacific theatre"
+      factors:
+        - desc: "Boost for naval powers at war"
+          trigger: { has_war: "yes", check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.2 } }
+          factor_add: 30
+    - area: africa
+      base_value: 10
+      desc: "African theatre"
+      factors:
+        - desc: "Boost when at war"
+          trigger: { has_war: "yes" }
+          factor_add: 10
+    - area: middle_east
+      base_value: 15
+      desc: "Middle East theatre"
+      factors:
+        - desc: "Boost when resources needed"
+          trigger: { check_variable: { var: dai_resource_need, compare: greater_than, value: 0.5 } }
+          factor_add: 20
+    - area: south_america
+      base_value: 5
+      desc: "South American theatre"
+    - area: north_america
+      base_value: 10
+      desc: "North American theatre"
+
+  # --- THEATRE DISTRIBUTION DEMAND ---
+  theatre_demands:
+    - name: reinforce_active_theatre
+      base_value: 20
+      desc: "Reinforce theatres with active combat"
+      triggers:
+        - { type: has_war, value: "yes" }
+      factors:
+        - desc: "More when losing"
+          trigger: { check_variable: { var: dai_war_defensive_priority, compare: greater_than, value: 50 } }
+          factor_add: 30
+        - desc: "Smart AI reinforces faster"
+          trigger: { check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.2 } }
+          factor_add: 15
+
+# Game rule options
+game_rule_options:
+  aggression:
+    - name: passive
+      desc: "AI rarely attacks"
+    - name: cautious
+      desc: "AI attacks only with strong advantage"
+    - name: normal
+      desc: "AI attacks when conditions are favourable (default)"
+    - name: aggressive
+      desc: "AI attacks with moderate advantage"
+    - name: reckless
+      desc: "AI attacks at every opportunity"
+  naval_behaviour:
+    - name: passive
+      desc: "Fleet stays in port"
+    - name: defensive
+      desc: "Fleet patrols home waters"
+    - name: balanced
+      desc: "Fleet operates based on strategic needs (default)"
+    - name: aggressive
+      desc: "Fleet seeks battle actively"

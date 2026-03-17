@@ -1,0 +1,215 @@
+###############################################################################
+# DAI Grand Strategy Module Configuration
+# Diplomacy, faction logic, trade, economic laws, and mobilisation
+###############################################################################
+
+module_name: grand_strategy
+namespace: dai_gs
+enabled_flag: DAI_GS_ENABLED
+game_rule: dai_gs_module
+
+# =============================================================================
+# Diplomacy Strategies (profile-independent — uses generic triggers)
+# =============================================================================
+diplomacy_strategies:
+
+  # --- Faction and alliance behaviour ---
+  - type: force_defend_ally_borders
+    base_value: 50
+    desc: "Willingness to defend allies"
+    factors:
+      - desc: "Boost when in faction at war"
+        trigger: { has_war: "yes" }
+        factor_add: 30
+      - desc: "Reduce for isolationist nations"
+        trigger: { check_variable: { var: dai_political_diplo_stance, compare: less_than, value: -0.05 } }
+        factor_add: -30
+
+  - type: dont_defend_ally_borders
+    base_value: 0
+    desc: "Refusal to defend distant allies"
+    factors:
+      - desc: "Boost when own borders threatened"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 60 } }
+        factor_add: 50
+      - desc: "Boost for isolationist AI"
+        trigger: { check_variable: { var: dai_political_diplo_stance, compare: less_than, value: -0.1 } }
+        factor_add: 30
+
+  # --- War declaration evaluation ---
+  - type: prepare_for_war
+    base_value: 0
+    desc: "General war preparation urgency"
+    factors:
+      - desc: "Aggressive nations prepare earlier"
+        trigger: { check_variable: { var: dai_political_aggression, compare: greater_than, value: 0.1 } }
+        factor_add: 50
+      - desc: "High threat drives preparation"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 50 } }
+        factor_add: 40
+      - desc: "Smart AI prepares earlier"
+        trigger: { check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.2 } }
+        factor_add: 20
+
+  # --- Lend-lease behaviour ---
+  - type: send_lend_lease_desire
+    base_value: 0
+    desc: "Willingness to send lend-lease"
+    factors:
+      - desc: "Boost for diplomatic nations"
+        trigger: { check_variable: { var: dai_political_diplo_stance, compare: greater_than, value: 0.05 } }
+        factor_add: 40
+      - desc: "Boost when ally is at war"
+        trigger: { has_war: "no" }
+        factor_add: 20
+      - desc: "Reduce when own equipment is low"
+        trigger: { check_variable: { var: dai_equipment_ratio, compare: less_than, value: 0.5 } }
+        factor_add: -50
+
+  # --- Volunteer sending ---
+  - type: send_volunteers_desire
+    base_value: 0
+    desc: "Willingness to send volunteers"
+    factors:
+      - desc: "Aggressive nations send volunteers"
+        trigger: { check_variable: { var: dai_political_aggression, compare: greater_than, value: 0.1 } }
+        factor_add: 30
+      - desc: "Communist nations support aligned wars"
+        trigger: { check_variable: { var: dai_political_diplo_stance, compare: greater_than, value: 0.05 } }
+        factor_add: 20
+
+# =============================================================================
+# Economy Strategies — mobilisation timing and factory balance
+# The mobilisation_timing entries are profile-independent (use generic
+# ai_strategy types). Law-specific strategies reference profile law IDs.
+# =============================================================================
+economy_strategies:
+
+  # --- Mobilisation timing (profile-independent) ---
+  - type: added_military_to_civilian_factory_ratio
+    base_value: 30
+    desc: "Military-to-civilian factory construction ratio"
+    factors:
+      - desc: "Shift to military when threat high"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 40 } }
+        factor_add: 30
+      - desc: "Major shift when at war"
+        trigger: { has_war: "yes" }
+        factor_add: 50
+      - desc: "Keep civilian focus when safe"
+        trigger: { has_war: "no", check_variable: { var: dai_threat_index, compare: less_than, value: 20 } }
+        factor_add: -20
+      - desc: "Fascist nations militarise earlier"
+        trigger: { check_variable: { var: dai_political_mil_priority, compare: greater_than, value: 0.1 } }
+        factor_add: 20
+      - desc: "Democracies delay mobilisation"
+        trigger: { check_variable: { var: dai_political_mil_priority, compare: less_than, value: -0.05 } }
+        factor_add: -15
+      - desc: "Buildup posture: favour civilian growth"
+        trigger: { check_variable: { var: dai_strategic_posture, compare: less_than, value: 0.5 } }
+        factor_add: -20
+      - desc: "Total war posture: maximum military shift"
+        trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 3.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 4.5 } }
+        factor_add: 60
+
+  # --- Equipment stockpile surplus (sell/trade threshold) ---
+  - type: equipment_stockpile_surplus_ratio
+    base_value: 20
+    desc: "How much surplus equipment to maintain"
+    factors:
+      - desc: "Build stockpile when threat high"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 40 } }
+        factor_add: 20
+      - desc: "Less surplus when at war (use everything)"
+        trigger: { has_war: "yes" }
+        factor_add: -15
+
+  # --- Supply train production ---
+  - type: min_wanted_supply_trains
+    base_value: 60
+    desc: "Minimum supply trains desired"
+    factors:
+      - desc: "More trains when at war"
+        trigger: { has_war: "yes" }
+        factor_add: 50
+      - desc: "More for large nations"
+        trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
+        factor_add: 30
+      - desc: "Boost when supply strained"
+        trigger: { check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.5 } }
+        factor_add: 40
+      - desc: "Major boost during supply crisis"
+        trigger: { check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.7 } }
+        factor_add: 60
+      - desc: "Boost for large occupied territory"
+        trigger: { check_variable: { var: dai_occupied_territory_size, compare: greater_than, value: 50 } }
+        factor_add: 30
+
+# =============================================================================
+# Economy Law Strategies (per-profile — law IDs vary between mods)
+# These use pp_spend_priority to nudge the AI toward changing laws.
+# =============================================================================
+economy_law_strategies:
+  - desc: "Mobilise economy based on threat level"
+    factors:
+      - desc: "Rush to war economy when at war"
+        trigger: { has_war: "yes" }
+        priority: 100
+      - desc: "Start mobilising when threat imminent"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 60 } }
+        priority: 70
+      - desc: "Begin mobilisation when threat moderate"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 35 } }
+        priority: 40
+      - desc: "Fascist nations mobilise earlier"
+        trigger: { check_variable: { var: dai_political_mil_priority, compare: greater_than, value: 0.1 } }
+        priority_add: 20
+
+  - desc: "Expand conscription based on manpower needs"
+    factors:
+      - desc: "Conscript when manpower critical"
+        trigger: { check_variable: { var: dai_manpower_ratio, compare: less_than, value: 0.2 } }
+        priority: 80
+      - desc: "Expand when at war with low manpower"
+        trigger: { has_war: "yes", check_variable: { var: dai_manpower_ratio, compare: less_than, value: 0.4 } }
+        priority: 60
+      - desc: "EMERGENCY: manpower completely depleted, force conscription upgrade"
+        trigger: { check_variable: { var: dai_manpower_ratio, compare: less_than, value: 0.1 } }
+        priority: 100
+      - desc: "EMERGENCY: at war with depleting manpower"
+        trigger: { has_war: "yes", check_variable: { var: dai_manpower_ratio, compare: less_than, value: 0.2 } }
+        priority: 90
+
+# =============================================================================
+# Peace Conference Strategies (profile-independent)
+# =============================================================================
+peace_strategies:
+  - desc: "Strategic territory over max land grab"
+    base_aggressive: 30
+    base_strategic: 50
+    base_puppet: 20
+    factors:
+      - desc: "Aggressive nations grab more land"
+        trigger: { check_variable: { var: dai_political_aggression, compare: greater_than, value: 0.1 } }
+        aggressive_add: 20
+        strategic_add: -10
+      - desc: "Smart AI takes strategic positions"
+        trigger: { check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.2 } }
+        strategic_add: 20
+        aggressive_add: -10
+      - desc: "Democracies prefer puppeting"
+        trigger: { check_variable: { var: dai_political_aggression, compare: less_than, value: -0.05 } }
+        puppet_add: 20
+        aggressive_add: -15
+
+# Game rule options
+game_rule_options:
+  diplomatic_stance:
+    - name: isolationist
+      desc: "AI avoids alliances and factions"
+    - name: cautious
+      desc: "AI joins factions only when threatened"
+    - name: dynamic
+      desc: "AI evaluates faction value dynamically (default)"
+    - name: interventionist
+      desc: "AI actively seeks alliances and intervenes"

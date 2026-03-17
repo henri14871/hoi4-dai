@@ -1,0 +1,448 @@
+# Auto-generated DAI profile for BlackICE Historical Immersion Mod
+# Review and adjust mappings before use
+
+profile_name: blackice
+game_version: "1.15.*"
+description: "BlackICE Historical Immersion Mod"
+priority: 10
+detection_hints:
+  # BlackICE sets this flag on startup
+  has_global_flag: [BICE_launched]
+area_mappings: [europe, asia, pacific, africa, middle_east, south_america, north_america]
+tech_categories:
+  BRANCH_INFANTRY:
+  - infantry_weapons_assault
+  - infantry_weapons_rifle
+  - infantry_weapons
+  BRANCH_ARMOUR:
+  - cat_para_armor
+  - armor_tech_transmission
+  - armor_tech_usa_medium
+  - cat_amph_armor
+  - armor_tech_ger_panzer4
+  - armor_tech_gun
+  - amp_armor
+  - armor_tech_armor_design
+  - TANKS
+  - cat_medium_armor_component
+  - armor_tech
+  - cat_anti_tank
+  - cat_heavy_armor_component
+  - armor_tech_ger_panther
+  - armor_tech_engine_gasoline
+  - armor_tech_armor_construction
+  - cat_light_armor_component
+  - armor_tech_engine
+  - armor_chassis
+  - armor_tech_engine_diesel
+  - armor_tech_gun_spgs
+  - armor_tech_special
+  - armor_tech_component
+  - cat_heavy_armor
+  - armor_tech_suspension
+  - armor_tech_ammo
+  - armor_tech_armor
+  - armor_tech_ger_panzer3
+  - cat_light_armor
+  - cat_medium_armor
+  - armor_tech_ger_tiger
+  - bb_armor_scheme
+  BRANCH_AIR:
+  - mikoyan_gurevich_air
+  - mitsubishi_air
+  - blohm_voss_air
+  - cas_bomber
+  - north_american_air
+  - breda_air
+  - tactical_bomber
+  - yakolev_air
+  - reggiane_air
+  - grumman_air
+  - heavy_air
+  - ambrosini_air
+  - yermolayev_air
+  - kawasaki_air
+  - sukhoi_air
+  - brewster_air
+  - latecoere_air
+  - yokosuka_air
+  - bloch_air
+  - henschel_air
+  - focke_wulf_air
+  - avro_air
+  - fairey_air
+  - vickers_air
+  - polikarpov_air
+  - tachikawa_air
+  - piaggio_air
+  - westland_air
+  - vultee_air
+  - AIR
+  - loire_air
+  - curtiss_air
+  - jet_aircraft
+  - gloster_air
+  - martin_baker_air
+  - light_air
+  - dornier_air
+  - light_fighter
+  - northrop_air
+  - fieseler_air
+  - lockheed_air
+  - beriev_air
+  - bristol_air
+  - hiro_air
+  - ilyushin_air
+  - ww1_air_doctrine
+  - sncac_air
+  - naval_bomber
+  - short_air
+  - morane_air
+  - potez_air
+  - levasseur_air
+  - blackburn_air
+  - vought_air
+  - messerschmitt_air
+  - fiat_air
+  - cat_strategic_bomber
+  - arado_air
+  - savoia_marchetti_air
+  - kyushu_air
+  - air_equipment
+  - naval_antiair
+  - medium_air
+  - cat_heavy_fighter
+  - breguet_air
+  - arsenal_air
+  - tupolev_air
+  - beechcraft_air
+  - lavochkin_air
+  - nakajima_air
+  - air_doctrine
+  - boulton_paul_air
+  - supermarine_air
+  - farman_air
+  - boeing_air
+  - saro_air
+  - arkhangelsky_air
+  - kawanishi_air
+  - heinkel_air
+  - consolidated_air
+  - bell_air
+  - cant_air
+  - imam_air
+  - rikugun_air
+  - anti_air_tech
+  - grigorovich_air
+  - caproni_air
+  - martin_air
+  - de_havilland_air
+  - naval_air
+  - air_engine
+  - junkers_air
+  - republic_air
+  - armstrong_air
+  - petlyakov_air
+  - aichi_air
+  - amiot_air
+  - handley_page_air
+  - macchi_air
+  - douglas_air
+  - hawker_air
+  - dewoitine_air
+  BRANCH_NAVAL:
+  - naval_equipment
+  - naval_minelaying
+  - NAVAL
+  - naval_doctrine_capital
+  - naval_battery_heavy
+  - naval_doctrine_convoy
+  - naval_doctrine_trade_interdiction
+  - torpedo_equipment
+  - aacl_tech
+  - dd_tech
+  - bb_tech
+  - naval_sub_equipment
+  - naval_doctrine_fleet_in_being
+  - naval_doctrine_carrier
+  - naval_engine
+  - naval_doctrine_submarine
+  - naval_doctrine_decisive_battle
+  - naval_sub_design
+  - naval_shell_design
+  - naval_doctrine
+  - ss_tech
+  - shbb_tech
+  - naval_doctrine_cruiser
+  - naval_doctrine_mine_warfare
+  - naval_minesweeping
+  - naval_battery_medium
+  - naval_battery_dp
+  - naval_firecontrol
+  - cl_tech
+  - naval_mines
+  - naval_doctrine_fleet_train
+  - naval_battery_light
+  - pbb_tech
+  - naval_doctrine_ww1
+  - naval_doctrine_destroyer
+  - fbb_tech
+  BRANCH_INDUSTRY:
+  - synth_resources
+  - concentrated_industry_category
+  - industry
+  - construction_tech
+  - dispersed_industry_category
+  BRANCH_ELECTRONICS:
+  - encryption_tech
+  - computing_tech
+  - radar_tech
+  - radio_tech
+  - electronics
+  BRANCH_DOCTRINE:
+  - land_doctrine
+  - DOCTRINES
+  - ww1_doctrine
+  - cat_brigade_doctrine
+sub_units:
+  ROLE_LINE_INFANTRY:
+  - militia
+  - light_infantry
+  - ss_infantry_assault
+  - trm_infantry_armor
+  - communist_militia
+  - ss_infantry
+  - luftwaffe_infantry
+  - trm_infantry_amphibious_armor
+  - trm_infantry_sp_artillery
+  - ss_motorcycle_infantry
+  - ss_light_infantry
+  - trm_infantry_cs_armor
+  - trm_infantry_tank_destroyer
+  - infantry_assault
+  - guards_infantry_assault
+  - ai_heavy_infantry
+  - fascist_militia
+  - ai_infantry
+  - trm_infantry_sp_anti_air_support
+  - trm_infantry_assault_gun
+  - guards_infantry
+  - motorcycle_infantry
+  - infantry
+  - ai_light_infantry
+  ROLE_BREAKTHROUGH:
+  - trm_guards_medium_advanced_tank_destroyer
+  - ss_anti_tank_brigade
+  - trm_medium_tank_destroyer
+  - trm_superheavy_armor
+  - ai_heavy_armor
+  - trm_guards_heavy_armor
+  - trm_guards_medium_tank_destroyer
+  - trm_guards_heavy_tank_destroyer
+  - ss_anti_tank_brigade_med
+  - trm_ss_superheavy_tank_destroyer
+  - trm_ss_medium_armor
+  - trm_tankette_armor
+  - ss_anti_tank_brigade_mot
+  - anti_tank_heavy
+  - anti_tank_mot
+  - trm_superheavy_tank_destroyer
+  - trm_tankette_sp_anti_air_support
+  - trm_tankette_assault_gun
+  - trm_medium_armor
+  - trm_guards_medium_armor
+  - ai_medium_armor
+  - airborne_anti_tank_brigade
+  - anti_tank_brigade_mot
+  - anti_tank_brigade_mot_med
+  - trm_ss_heavy_armor
+  - trm_tankette_tank_destroyer
+  - anti_tank
+  - trm_cavalry_tank_destroyer
+  - trm_tankette_armor_recon
+  - trm_ss_superheavy_armor
+  - trm_tankette_cs_armor
+  - trm_ss_medium_advanced_tank_destroyer
+  - trm_guards_light_tank_destroyer
+  - trm_ss_light_tank_destroyer
+  - anti_tank_brigade
+  - anti_tank_brigade_med
+  - trm_tankette_sp_artillery
+  - ss_anti_tank_brigade_mot_med
+  - trm_ss_medium_tank_destroyer
+  - trm_tankette_amphibious_armor
+  - trm_ss_heavy_tank_destroyer
+  - trm_tankette_amphibious_armor_recon
+  - trm_medium_advanced_tank_destroyer
+  - trm_heavy_armor
+  - trm_light_tank_destroyer
+  - trm_heavy_tank_destroyer
+  ROLE_MOBILE:
+  - guards_artillery_brigade_mot_med
+  - amphibious_mechanized_assault
+  - semi_motorized
+  - mechanized_assault
+  - guards_motorized
+  - ss_semi_motorized
+  - guards_mechanized_assault
+  - ss_motorized_assault
+  - motorized
+  - mechanized
+  - ss_motorized
+  - ss_mechanized
+  - guards_motorized_rocket_brigade
+  - guards_motorized_assault
+  - artillery_brigade_mot_med
+  - motorized_rocket_brigade
+  - ss_mechanized_assault
+  - guards_mechanized
+  - ai_motorized
+  - amphibious_mechanized
+  - motorized_assault
+  - semi_motorized_assault
+  - ss_motorized_rocket_brigade
+  - ss_semi_motorized_assault
+  ROLE_GARRISON:
+  - trm_cavalry_sp_artillery
+  - ai_garrison
+  - cavalry
+  - military_police
+  - garrison
+  - trm_cavalry_assault_gun
+  - trm_cavalry_armor
+  - trm_cavalry_amphibious_armor_recon
+  - trm_cavalry_sp_anti_air_support
+  - guards_cavalry
+  - trm_cavalry_cs_armor
+  - trm_cavalry_armor_recon
+  - ss_garrison
+  - trm_cavalry_amphibious_armor
+  - camelry
+  - ai_cavalry
+  - ss_cavalry
+  ROLE_SPECIAL:
+  - trm_heavy_amphibious_armor
+  - commando
+  - patrol_submarine
+  - ai_marines
+  - trm_medium_amphibious_armor
+  - ai_mountaineers
+  - ss_mountaineers
+  - marine
+  - trm_medium_advanced_amphibious_armor
+  - ss_paratrooper
+  - trm_light_amphibious_armor_recon
+  - amphibious
+  - coastal_submarine
+  - trm_light_amphibious_armor
+  - lr_submarine
+  - trm_amphibious_armor
+  - mountaineers
+  - guards_paratrooper
+  - marine_assault
+  - paratrooper
+  - trm_amphibious_armor_recon
+equipment:
+  EQUIP_INFANTRY:
+  - infantry_equipment
+  EQUIP_ARMOUR: []
+  EQUIP_FIGHTER: []
+  EQUIP_CAS: []
+  EQUIP_BOMBER: []
+  EQUIP_CAPITAL_SHIP: []
+  EQUIP_SCREEN: []
+  EQUIP_SUBMARINE: []
+  EQUIP_CONVOY: []
+  EQUIP_SUPPORT: []
+  EQUIP_ARTILLERY:
+  - medartillery_equipment
+  - mountain_artillery_equipment
+  - railartillery_equipment
+  - artillery_equipment
+  - rocket_artillery_equipment
+  - Hvartillery_equipment
+  EQUIP_ANTI_TANK:
+  - HVanti_tank_equipment
+  - medanti_tank_equipment
+  EQUIP_ANTI_AIR:
+  - HVanti_air_equipment
+  EQUIP_MOTORIZED:
+  - artytruck_equipment
+ideologies:
+- liberalism
+- rep_party_us
+- corporatism
+- theocracie
+- emiratism
+- fascism_ideology
+- centerright
+- national_liberalism
+- early_maoism
+- national_communism
+- social_liberalism
+- dem_party_us
+- social_democracy
+- legionnairism
+- peasant_party
+- libertarianism
+- anarchist_communism
+- french_fascism
+- pan_arabism
+- neutrality
+- british_fascism
+- trotskyism
+- farmers_party
+- military_dictatorship
+- leninism
+- provisional_government
+- agrarian_socialism
+- agrarianism
+- strasserism
+- despotism
+- rules
+- kemalism
+- color
+- communism
+- fascism
+- vichy
+- dynamic_faction_names
+- types
+- titoism
+- reactionism
+- monarchism
+- the_peoples_tutelage
+- classical_liberalism
+- industrial_farmers
+- populism
+- taisei_yokusankai
+- imperial
+- nazism
+- socialism
+- moderatism
+- faction_modifiers
+- late_maoism
+- gen_nazism
+- popular
+- modifiers
+- radicalism
+- rexism
+- oligarchism
+- hungarism
+- pseudo_fascism
+- marxism
+- anti_revisionism
+- centrism
+- falangism
+- social_conservatism
+- conservatism
+- absolutism
+- syndicalism
+- nationalistic
+- anarcho_syndicalism
+- moderate
+- ideologies
+- anarcho_socialism
+- lon_mandate
+- stalinism
+- pacifist
+- progressivism

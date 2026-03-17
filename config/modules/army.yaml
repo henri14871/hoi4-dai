@@ -1,0 +1,465 @@
+###############################################################################
+# DAI Army Module Configuration
+# Adaptive division templates and intelligent production
+###############################################################################
+
+module_name: army
+namespace: dai_army
+enabled_flag: DAI_ARMY_ENABLED
+game_rule: dai_army_module
+
+# =============================================================================
+# Division Template Roles
+# Each role defines a progression of templates the AI upgrades through
+# as industry and tech develop. Sub-unit types come from the profile.
+# =============================================================================
+template_roles:
+
+  # --- LINE INFANTRY: front-holding, cheap, mass-produced ---
+  - role: infantry
+    abstract_unit: ROLE_LINE_INFANTRY
+    templates:
+      - name: infantry_early
+        desc: "Basic infantry — 9 battalions, minimal support"
+        tier: early
+        upgrade_prio_base: 10
+        regiments:
+          ROLE_LINE_INFANTRY: 9
+        support:
+          - engineer
+        upgrade_conditions: []
+        replace_with: infantry_mid
+        replace_at_match: 0.9
+
+      - name: infantry_mid
+        desc: "Improved infantry — 9 battalions + artillery and recon"
+        tier: mid
+        upgrade_prio_base: 5
+        upgrade_conditions:
+          - { type: has_tech, value: improved_infantry_weapons }
+        regiments:
+          ROLE_LINE_INFANTRY: 9
+        support:
+          - engineer
+          - recon
+          - artillery
+        replace_with: infantry_late
+        replace_at_match: 0.9
+
+      - name: infantry_late
+        desc: "Full infantry — 9 battalions + full support"
+        tier: late
+        upgrade_prio_base: 3
+        upgrade_conditions:
+          - { type: has_tech, value: advanced_infantry_weapons }
+        regiments:
+          ROLE_LINE_INFANTRY: 9
+        support:
+          - engineer
+          - recon
+          - artillery
+          - anti_tank
+          - anti_air
+
+  # --- BREAKTHROUGH: armoured spearhead divisions ---
+  - role: armor
+    abstract_unit: ROLE_BREAKTHROUGH
+    templates:
+      - name: armor_early
+        desc: "Light armor — 5 tanks + 4 motorized"
+        tier: early
+        upgrade_prio_base: 2
+        upgrade_conditions:
+          - { type: check_variable, var: dai_industry_score, compare: greater_than, value: 40 }
+        regiments:
+          ROLE_BREAKTHROUGH: 5
+          ROLE_MOBILE: 4
+        support:
+          - engineer
+          - recon
+        replace_with: armor_mid
+        replace_at_match: 1.5
+
+      - name: armor_mid
+        desc: "Medium armor — 6 tanks + 4 motorized + support"
+        tier: mid
+        upgrade_prio_base: 2
+        upgrade_conditions:
+          - { type: check_variable, var: dai_industry_score, compare: greater_than, value: 55 }
+        regiments:
+          ROLE_BREAKTHROUGH: 6
+          ROLE_MOBILE: 4
+        support:
+          - engineer
+          - recon
+          - logistics
+          - maintenance
+        replace_with: armor_late
+        replace_at_match: 1.5
+
+      - name: armor_late
+        desc: "Heavy combined arms — 7 tanks + 4 mech + full support"
+        tier: late
+        upgrade_prio_base: 2
+        upgrade_conditions:
+          - { type: check_variable, var: dai_industry_score, compare: greater_than, value: 70 }
+        regiments:
+          ROLE_BREAKTHROUGH: 7
+          ROLE_MOBILE: 4
+        support:
+          - engineer
+          - recon
+          - logistics
+          - maintenance
+          - signal
+
+  # --- MOBILE: fast exploitation divisions ---
+  - role: motorized
+    abstract_unit: ROLE_MOBILE
+    templates:
+      - name: motorized_early
+        desc: "Basic motorized — 7 battalions"
+        tier: early
+        upgrade_prio_base: 3
+        upgrade_conditions:
+          - { type: check_variable, var: dai_industry_score, compare: greater_than, value: 35 }
+        regiments:
+          ROLE_MOBILE: 7
+        support:
+          - engineer
+          - recon
+        replace_with: motorized_late
+        replace_at_match: 0.9
+
+      - name: motorized_late
+        desc: "Full motorized — 9 battalions + support"
+        tier: late
+        upgrade_prio_base: 2
+        upgrade_conditions:
+          - { type: check_variable, var: dai_industry_score, compare: greater_than, value: 50 }
+        regiments:
+          ROLE_MOBILE: 9
+        support:
+          - engineer
+          - recon
+          - artillery
+          - logistics
+
+  # --- GARRISON: occupation and suppression ---
+  - role: garrison
+    abstract_unit: ROLE_GARRISON
+    templates:
+      - name: garrison_basic
+        desc: "Cavalry garrison — cheap suppression"
+        tier: early
+        upgrade_prio_base: 6
+        regiments:
+          ROLE_GARRISON: 6
+        support:
+          - military_police
+        upgrade_conditions: []
+        replace_with: garrison_improved
+        replace_at_match: 0.9
+
+      - name: garrison_improved
+        desc: "Improved garrison — 8 cavalry + MP + AA for occupied territory"
+        tier: mid
+        upgrade_prio_base: 4
+        regiments:
+          ROLE_GARRISON: 8
+        support:
+          - military_police
+          - anti_air
+        upgrade_conditions:
+          - { type: check_variable, var: dai_occupied_territory_size, compare: greater_than, value: 30 }
+          - { type: has_war, value: "yes" }
+
+  # --- ANTI-TANK RESPONSE: reactive template when facing enemy armour ---
+  - role: at_infantry
+    abstract_unit: ROLE_LINE_INFANTRY
+    templates:
+      - name: infantry_at_response
+        desc: "Anti-tank infantry — 9 battalions + AT-focused support"
+        tier: mid
+        upgrade_prio_base: 7
+        upgrade_conditions:
+          - { type: check_variable, var: dai_enemy_armor_threat, compare: greater_than, value: 0.4 }
+        regiments:
+          ROLE_LINE_INFANTRY: 9
+        support:
+          - engineer
+          - recon
+          - anti_tank
+          - anti_air
+
+  # --- SPECIAL: marines, mountaineers, paratroopers ---
+  - role: mountaineers
+    abstract_unit: ROLE_SPECIAL
+    templates:
+      - name: special_basic
+        desc: "Specialist infantry — 9 battalions for terrain advantage"
+        tier: early
+        upgrade_prio_base: 1
+        upgrade_conditions:
+          - { type: check_variable, var: dai_industry_score, compare: greater_than, value: 40 }
+        regiments:
+          ROLE_SPECIAL: 9
+        support:
+          - engineer
+          - recon
+          - artillery
+
+# =============================================================================
+# Production Strategy Definitions
+# Equipment production priorities scaled by game state
+# =============================================================================
+production_strategies:
+  - abstract_equip: EQUIP_INFANTRY
+    base_value: 80
+    desc: "Infantry equipment — always needed"
+    factors:
+      - desc: "High priority when at war"
+        trigger: { has_war: "yes" }
+        factor: 1.5
+      - desc: "Reduced when stockpile healthy"
+        trigger: { check_variable: { var: dai_equipment_ratio, compare: greater_than, value: 0.8 } }
+        factor: 0.7
+      - desc: "EMERGENCY: maximum priority during needs crisis"
+        trigger: { check_variable: { var: dai_needs_override_active, compare: greater_than, value: 0.5 } }
+        factor: 3.0
+      - desc: "Survival posture: mass produce basics"
+        trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 4.5 } }
+        factor: 4.0
+
+  - abstract_equip: EQUIP_SUPPORT
+    base_value: 30
+    desc: "Support equipment for all support companies"
+    factors:
+      - desc: "Boost when expanding army"
+        trigger: { has_war: "yes" }
+        factor: 1.3
+      - desc: "EMERGENCY: boost during needs crisis"
+        trigger: { check_variable: { var: dai_needs_override_active, compare: greater_than, value: 0.5 } }
+        factor: 2.0
+
+  - abstract_equip: EQUIP_ARTILLERY
+    base_value: 25
+    desc: "Artillery for support and line companies"
+    factors:
+      - desc: "Boost when at war"
+        trigger: { has_war: "yes" }
+        factor: 1.5
+      - desc: "Boost for industrial powers"
+        trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 50 } }
+        factor: 1.3
+
+  - abstract_equip: EQUIP_ANTI_TANK
+    base_value: 10
+    desc: "Anti-tank guns"
+    factors:
+      - desc: "Base boost when at war"
+        trigger: { has_war: "yes" }
+        factor: 1.5
+      - desc: "Strong boost when enemy has medium tanks"
+        trigger: { check_variable: { var: dai_enemy_armor_threat, compare: greater_than, value: 0.3 } }
+        factor: 3.0
+      - desc: "Major boost when enemy has advanced armour"
+        trigger: { check_variable: { var: dai_enemy_armor_threat, compare: greater_than, value: 0.6 } }
+        factor: 2.0
+      - desc: "Emergency AT production against heavy armour"
+        trigger: { check_variable: { var: dai_enemy_armor_threat, compare: greater_than, value: 0.8 } }
+        factor: 1.5
+
+  - abstract_equip: EQUIP_ANTI_AIR
+    base_value: 10
+    desc: "Anti-air guns"
+    factors:
+      - desc: "Boost when air threat high"
+        trigger: { check_variable: { var: dai_air_threat, compare: greater_than, value: 0.4 } }
+        factor: 2.5
+
+  - abstract_equip: EQUIP_MOTORIZED
+    base_value: 15
+    desc: "Trucks and mechanized equipment"
+    factors:
+      - desc: "Boost for industrial powers"
+        trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 45 } }
+        factor: 1.8
+      - desc: "Boost when at war (supply)"
+        trigger: { has_war: "yes" }
+        factor: 1.3
+      - desc: "Boost when supply strained at war (trucks needed for logistics)"
+        trigger: { has_war: "yes", check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.4 } }
+        factor: 2.0
+      - desc: "Major boost during supply crisis"
+        trigger: { has_war: "yes", check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.6 } }
+        factor: 1.5
+
+  - abstract_equip: EQUIP_ARMOUR
+    base_value: 10
+    desc: "Tank chassis production"
+    factors:
+      - desc: "Boost for major industrial powers"
+        trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 55 } }
+        factor: 2.5
+      - desc: "Suppress for minor nations"
+        trigger: { check_variable: { var: dai_industry_score, compare: less_than, value: 30 } }
+        factor: 0.2
+      - desc: "EMERGENCY: suppress tank production during equipment crisis"
+        trigger: { check_variable: { var: dai_equipment_ratio, compare: less_than, value: 0.25 } }
+        factor: 0.1
+      - desc: "Offensive posture: boost tank production"
+        trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 2.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 3.5 } }
+        factor: 2.0
+      - desc: "Survival posture: suppress luxury production"
+        trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 4.5 } }
+        factor: 0.1
+
+  - abstract_equip: EQUIP_FIGHTER
+    base_value: 20
+    desc: "Fighter aircraft"
+    factors:
+      - desc: "Boost when air threat high"
+        trigger: { check_variable: { var: dai_air_threat, compare: greater_than, value: 0.3 } }
+        factor: 2.0
+      - desc: "Boost for industrial powers"
+        trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 40 } }
+        factor: 1.5
+      - desc: "EMERGENCY: reduce air production during equipment crisis (unless air threatened)"
+        trigger: { check_variable: { var: dai_needs_override_active, compare: greater_than, value: 0.5 }, check_variable_2: { var: dai_air_threat, compare: less_than, value: 0.3 } }
+        factor: 0.3
+
+  - abstract_equip: EQUIP_CAS
+    base_value: 10
+    desc: "Close air support"
+    factors:
+      - desc: "Boost when at war"
+        trigger: { has_war: "yes" }
+        factor: 2.0
+      - desc: "Boost for industrial powers"
+        trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 50 } }
+        factor: 1.5
+
+# =============================================================================
+# Construction Strategy
+# Civilian vs military factory priorities (profile-independent)
+# =============================================================================
+construction_strategies:
+  - type: civilian_factory
+    base_value: 50
+    desc: "Civilian factories for economic growth"
+    factors:
+      - desc: "High priority when at peace and low industry"
+        trigger: { has_war: "no", check_variable: { var: dai_industry_score, compare: less_than, value: 40 } }
+        factor: 2.0
+      - desc: "Reduce when at war"
+        trigger: { has_war: "yes" }
+        factor: 0.4
+      - desc: "Smart AI maintains some civ production even at war"
+        trigger: { has_war: "yes", check_variable_2: { var: dai_effective_intelligence, compare: greater_than, value: 1.3 } }
+        factor: 1.5
+      - desc: "EMERGENCY: suppress civ building during needs crisis"
+        trigger: { check_variable: { var: dai_needs_override_active, compare: greater_than, value: 0.5 } }
+        factor: 0.1
+      - desc: "Buildup posture: more civilian factories"
+        trigger: { check_variable: { var: dai_strategic_posture, compare: less_than, value: 0.5 } }
+        factor: 2.5
+
+  - type: arms_factory
+    base_value: 40
+    desc: "Military factories for equipment"
+    factors:
+      - desc: "Boost when threat is high"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 40 } }
+        factor: 1.8
+      - desc: "Major boost when at war"
+        trigger: { has_war: "yes" }
+        factor: 2.5
+      - desc: "Reduce when at peace and low threat"
+        trigger: { has_war: "no", check_variable: { var: dai_threat_index, compare: less_than, value: 20 } }
+        factor: 0.5
+      - desc: "EMERGENCY: equipment crisis forces military factory priority"
+        trigger: { has_war: "yes", check_variable: { var: dai_equipment_ratio, compare: less_than, value: 0.3 } }
+        factor: 4.0
+      - desc: "Total war posture: maximum military production"
+        trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 3.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 4.5 } }
+        factor: 3.0
+
+  - type: dockyard
+    base_value: 10
+    desc: "Dockyards for naval production"
+    factors:
+      - desc: "Boost when naval threat high"
+        trigger: { check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.3 } }
+        factor: 2.5
+      - desc: "Boost for major powers"
+        trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
+        factor: 1.5
+      - desc: "Suppress for landlocked/minor"
+        trigger: { check_variable: { var: dai_gps, compare: less_than, value: 25 } }
+        factor: 0.2
+
+  # --- Supply infrastructure (fixes Frontline AI known issue: limited supply construction) ---
+  - type: infrastructure
+    base_value: 15
+    desc: "Infrastructure for supply throughput"
+    factors:
+      - desc: "High priority at war with supply strain"
+        trigger: { has_war: "yes", check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.4 } }
+        factor: 3.0
+      - desc: "Major powers at war need logistics"
+        trigger: { has_war: "yes", check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
+        factor: 2.0
+      - desc: "Peacetime growth investment"
+        trigger: { has_war: "no", check_variable: { var: dai_industry_score, compare: less_than, value: 40 } }
+        factor: 1.5
+      - desc: "Suppress for very low industry (factories first)"
+        trigger: { check_variable: { var: dai_industry_score, compare: less_than, value: 25 } }
+        factor: 0.3
+
+  - type: supply_node
+    base_value: 5
+    desc: "Supply hubs for logistics network"
+    factors:
+      - desc: "Boost when at war"
+        trigger: { has_war: "yes" }
+        factor: 3.0
+      - desc: "Major boost when supply strained"
+        trigger: { check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.5 } }
+        factor: 3.0
+      - desc: "Critical boost during supply crisis"
+        trigger: { check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.7 } }
+        factor: 2.0
+      - desc: "Major powers need supply network"
+        trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
+        factor: 1.5
+      - desc: "Almost never build at peace"
+        trigger: { has_war: "no" }
+        factor: 0.1
+
+  - type: railway
+    base_value: 5
+    desc: "Railways for supply delivery"
+    factors:
+      - desc: "Boost when at war"
+        trigger: { has_war: "yes" }
+        factor: 2.5
+      - desc: "Boost when supply strained"
+        trigger: { check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.4 } }
+        factor: 2.5
+      - desc: "Major powers at war need rail"
+        trigger: { has_war: "yes", check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
+        factor: 2.0
+      - desc: "Rarely build at peace"
+        trigger: { has_war: "no" }
+        factor: 0.2
+
+# Game rule options
+game_rule_options:
+  template_complexity:
+    - name: simple
+      desc: "AI builds basic templates only"
+    - name: standard
+      desc: "AI builds moderately complex templates (default)"
+    - name: advanced
+      desc: "AI builds highly optimised templates"

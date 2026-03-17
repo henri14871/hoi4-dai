@@ -1,0 +1,26 @@
+###############################################################################
+# DAI Engine Define Overrides
+# Tunes engine-level AI behaviour that scripts cannot reach.
+# These are global — they affect ALL AI nations equally.
+###############################################################################
+
+defines:
+  NAI:
+    # === Garrison ===
+    GARRISON_FRACTION: 0.08                     # vanilla ~0.05, stronger garrisons
+
+    # === Frontline Behaviour ===
+    FRONT_TERRAIN_ATTACK_FACTOR: 0.3            # more cautious in bad terrain
+    PLAN_VALUE_TO_EXECUTE: 0.35                 # execute plans earlier when ready
+    PLAN_ATTACK_DEPTH_FACTOR: 0.8               # don't overextend
+
+    # === Naval ===
+    CONVOY_ESCORT_PRIORITY: 1.5                 # protect convoys better
+    NAVAL_MISSION_SPREAD_BASE: 0.6              # better naval coverage
+
+    # === Production ===
+    PRODUCTION_LINE_SWITCH_FACTOR: 0.7          # less penalty for switching lines
+    EQUIPMENT_SURPLUS_FACTOR: 0.3               # keep less surplus, use everything
+
+    # === Air ===
+    AIR_SUPERIORITY_IMPORTANCE: 1.3             # value air superiority more

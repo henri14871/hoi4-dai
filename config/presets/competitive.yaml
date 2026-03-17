@@ -1,0 +1,4 @@
+preset_name: competitive
+global_multiplier: 1.6
+flag_name: DAI_PRESET_COMPETITIVE
+description: "AI plays to win. Aggressive optimisation across all modules. For experienced players."

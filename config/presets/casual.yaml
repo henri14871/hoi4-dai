@@ -1,0 +1,4 @@
+preset_name: casual
+global_multiplier: 0.6
+flag_name: DAI_PRESET_CASUAL
+description: "AI makes reasonable but suboptimal decisions. Good for narrative or roleplay campaigns."
