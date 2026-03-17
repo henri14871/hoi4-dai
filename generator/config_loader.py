@@ -255,17 +255,39 @@ def merge_all_profiles_into_config(config: dict, profiles: list[dict]) -> dict:
         merged["economy_strategies"] = gs_module.get("economy_strategies", [])
         merged["economy_law_strategies"] = gs_module.get("economy_law_strategies", [])
         merged["peace_strategies"] = gs_module.get("peace_strategies", [])
+        merged["pp_spend_strategies"] = gs_module.get("pp_spend_strategies", [])
+        merged["xp_spend_strategies"] = gs_module.get("xp_spend_strategies", [])
+        merged["resource_stockpile_strategies"] = gs_module.get("resource_stockpile_strategies", [])
+        merged["espionage_strategies"] = gs_module.get("espionage_strategies", [])
+        merged["diplomatic_target_strategies"] = gs_module.get("diplomatic_target_strategies", [])
     else:
         merged["diplomacy_strategies"] = []
         merged["economy_strategies"] = []
         merged["economy_law_strategies"] = []
         merged["peace_strategies"] = []
+        merged["pp_spend_strategies"] = []
+        merged["xp_spend_strategies"] = []
+        merged["resource_stockpile_strategies"] = []
+        merged["espionage_strategies"] = []
+        merged["diplomatic_target_strategies"] = []
 
     # Construction strategies are profile-independent — pass through directly
     if army_module and army_module.get("construction_strategies"):
         merged["construction_strategies"] = army_module["construction_strategies"]
     else:
         merged["construction_strategies"] = []
+
+    # Army module: profile-independent strategy passthroughs
+    if army_module:
+        merged["variant_strategies"] = army_module.get("variant_strategies", [])
+        merged["support_ratio_strategies"] = army_module.get("support_ratio_strategies", [])
+        merged["template_prio_strategies"] = army_module.get("template_prio_strategies", [])
+        merged["design_score_strategies"] = army_module.get("design_score_strategies", [])
+    else:
+        merged["variant_strategies"] = []
+        merged["support_ratio_strategies"] = []
+        merged["template_prio_strategies"] = []
+        merged["design_score_strategies"] = []
 
     # Default profile = first one (lowest priority)
     default_profile = profiles[0] if profiles else {}

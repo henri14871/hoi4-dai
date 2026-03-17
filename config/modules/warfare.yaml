@@ -117,6 +117,29 @@ land_strategies:
             trigger: { has_war: "yes", check_variable: { var: dai_military_score, compare: less_than, value: 30 } }
             factor: 1.8
 
+  # --- Strategic reserves ---
+  - type: spare_unit_factor
+    entries:
+      - id: strategic_reserve
+        base_value: 10
+        desc: "Strategic reserve — units held back from front assignment"
+        factors:
+          - desc: "Increase reserves when defensive"
+            trigger: { check_variable: { var: dai_war_defensive_priority, compare: greater_than, value: 50 } }
+            factor_add: 15
+          - desc: "Decrease reserves during full offensive"
+            trigger: { check_variable: { var: dai_war_offensive_readiness, compare: greater_than, value: 70 } }
+            factor_add: -10
+          - desc: "Reduce when equipment critical (use everything)"
+            trigger: { check_variable: { var: dai_equipment_ratio, compare: less_than, value: 0.3 } }
+            factor_add: -10
+          - desc: "Fortified posture: larger reserves for counterattacks"
+            trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 0.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 1.5 } }
+            factor_add: 15
+          - desc: "Survival posture: commit everything"
+            trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 4.5 } }
+            factor_add: -15
+
   # --- AI wanted divisions scaling ---
   - type: ai_wanted_divisions_factor
     entries:
@@ -199,6 +222,76 @@ naval_strategies:
       - desc: "Major boost for aggressive AI"
         trigger: { check_variable: { var: dai_political_aggression, compare: greater_than, value: 0.1 } }
         factor_add: 15
+
+  # Naval mission assignments
+  - type: naval_mission
+    entries:
+      - id: patrol
+        base_value: 30
+        desc: "Patrol missions — detect enemy fleets"
+        factors:
+          - desc: "Boost when at war"
+            trigger: { has_war: "yes" }
+            factor_add: 20
+          - desc: "Boost when naval threat high"
+            trigger: { check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.3 } }
+            factor_add: 20
+
+      - id: convoy_escort
+        base_value: 20
+        desc: "Convoy escort missions"
+        factors:
+          - desc: "Boost when naval threat high (submarine danger)"
+            trigger: { check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.4 } }
+            factor_add: 30
+          - desc: "Boost when at war"
+            trigger: { has_war: "yes" }
+            factor_add: 20
+          - desc: "Boost when resource need high (trade routes vital)"
+            trigger: { check_variable: { var: dai_resource_need, compare: greater_than, value: 0.4 } }
+            factor_add: 15
+
+      - id: convoy_raiding
+        base_value: 0
+        desc: "Convoy raiding missions"
+        factors:
+          - desc: "Only when at war"
+            trigger: { has_war: "yes" }
+            factor_add: 25
+          - desc: "Boost when enemy relies on trade"
+            trigger: { has_war: "yes", check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.2 } }
+            factor_add: 20
+
+      - id: strike_force
+        base_value: 10
+        desc: "Strike force readiness"
+        factors:
+          - desc: "Boost when at war"
+            trigger: { has_war: "yes" }
+            factor_add: 20
+          - desc: "Boost for major naval powers"
+            trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
+            factor_add: 15
+
+  # Fleet composition preferences
+  - type: strike_force_fleet_composition
+    base_value: 50
+    desc: "Strike force fleet composition preference"
+    factors:
+      - desc: "Heavier composition for major powers"
+        trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 60 } }
+        factor_add: 20
+      - desc: "Screen-heavy when at war"
+        trigger: { has_war: "yes" }
+        factor_add: 15
+
+  - type: task_force_composition
+    base_value: 30
+    desc: "Task force composition preference"
+    factors:
+      - desc: "More escorts when convoy priority high"
+        trigger: { check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.4 } }
+        factor_add: 20
 
   - type: dockyard_to_military_factory_ratio
     base_value: 15

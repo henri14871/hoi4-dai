@@ -145,6 +145,27 @@ economy_strategies:
         trigger: { check_variable: { var: dai_occupied_territory_size, compare: greater_than, value: 50 } }
         factor_add: 30
 
+  # --- Trade willingness ---
+  - type: trade_desire
+    base_value: 30
+    desc: "General trade willingness"
+    factors:
+      - desc: "Boost when resource need is high"
+        trigger: { check_variable: { var: dai_resource_need, compare: greater_than, value: 0.3 } }
+        factor_add: 30
+      - desc: "Major boost when resource-starved"
+        trigger: { check_variable: { var: dai_resource_need, compare: greater_than, value: 0.6 } }
+        factor_add: 30
+      - desc: "Boost for industrial powers (need raw materials)"
+        trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 50 } }
+        factor_add: 20
+      - desc: "Reduce for isolationist nations"
+        trigger: { check_variable: { var: dai_political_diplo_stance, compare: less_than, value: -0.1 } }
+        factor_add: -20
+      - desc: "Reduce when at war (security over trade)"
+        trigger: { has_war: "yes" }
+        factor_add: -15
+
 # =============================================================================
 # Economy Law Strategies (per-profile — law IDs vary between mods)
 # These use pp_spend_priority to nudge the AI toward changing laws.
@@ -201,6 +222,319 @@ peace_strategies:
         trigger: { check_variable: { var: dai_political_aggression, compare: less_than, value: -0.05 } }
         puppet_add: 20
         aggressive_add: -15
+
+# =============================================================================
+# Political Power Spending Priorities
+# Controls how AI allocates political power between advisors, decisions, laws
+# =============================================================================
+pp_spend_strategies:
+  - type: pp_spend_priority
+    entries:
+      - id: idea
+        base_value: 50
+        desc: "Political advisors and ministers"
+        factors:
+          - desc: "High priority early game (advisors matter most early)"
+            trigger: { has_war: "no", check_variable: { var: dai_industry_score, compare: less_than, value: 40 } }
+            factor_add: 30
+          - desc: "Reduce during war (save PP for decisions)"
+            trigger: { has_war: "yes" }
+            factor_add: -20
+          - desc: "Boost when mobilisation urgency low (spend on advisors)"
+            trigger: { check_variable: { var: dai_gs_mobilisation_urgency, compare: less_than, value: 30 } }
+            factor_add: 20
+
+      - id: decision
+        base_value: 30
+        desc: "Decisions and active abilities"
+        factors:
+          - desc: "Boost when at war (wartime decisions critical)"
+            trigger: { has_war: "yes" }
+            factor_add: 40
+          - desc: "Boost for high threat (war preparation decisions)"
+            trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 50 } }
+            factor_add: 25
+
+      - id: law
+        base_value: 40
+        desc: "Economy and conscription law changes"
+        factors:
+          - desc: "Boost when mobilisation urgency is high"
+            trigger: { check_variable: { var: dai_gs_mobilisation_urgency, compare: greater_than, value: 50 } }
+            factor_add: 40
+          - desc: "Critical boost when manpower depleted"
+            trigger: { check_variable: { var: dai_manpower_ratio, compare: less_than, value: 0.2 } }
+            factor_add: 50
+          - desc: "Reduce when already at total war posture"
+            trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 3.5 } }
+            factor_add: -30
+
+# =============================================================================
+# Experience Spending Priorities
+# Controls doctrine research and template editing with XP
+# =============================================================================
+xp_spend_strategies:
+  - type: land_xp_spend_priority
+    base_value: 100
+    desc: "Land XP spending on doctrines and templates"
+    factors:
+      - desc: "Prioritise doctrine at peace"
+        trigger: { has_war: "no" }
+        factor_add: 50
+      - desc: "Shift to template editing at war when equipped"
+        trigger: { has_war: "yes", check_variable: { var: dai_equipment_ratio, compare: greater_than, value: 0.5 } }
+        factor_add: -30
+      - desc: "Low industry nations should research doctrine not edit templates"
+        trigger: { check_variable: { var: dai_industry_score, compare: less_than, value: 30 } }
+        factor_add: 30
+
+  - type: air_xp_spend_priority
+    base_value: 80
+    desc: "Air XP spending on air doctrines"
+    factors:
+      - desc: "Prioritise doctrine when air threat high"
+        trigger: { check_variable: { var: dai_air_threat, compare: greater_than, value: 0.3 } }
+        factor_add: 40
+      - desc: "Industrial powers can afford to design variants"
+        trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 50 } }
+        factor_add: -20
+
+  - type: navy_xp_spend_priority
+    base_value: 60
+    desc: "Navy XP spending on naval doctrines"
+    factors:
+      - desc: "Boost doctrine when naval threat high"
+        trigger: { check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.3 } }
+        factor_add: 40
+      - desc: "Major powers invest more in naval doctrine"
+        trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
+        factor_add: 20
+
+# =============================================================================
+# Strategic Resource Stockpiling
+# =============================================================================
+resource_stockpile_strategies:
+  - type: critical_resource_stockpile
+    entries:
+      - id: oil
+        base_value: 30
+        desc: "Oil stockpile for fuel"
+        factors:
+          - desc: "Boost before and during war"
+            trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 40 } }
+            factor_add: 30
+          - desc: "Major boost at war"
+            trigger: { has_war: "yes" }
+            factor_add: 40
+          - desc: "Critical when resource need high"
+            trigger: { check_variable: { var: dai_resource_need, compare: greater_than, value: 0.5 } }
+            factor_add: 30
+
+      - id: steel
+        base_value: 20
+        desc: "Steel for equipment production"
+        factors:
+          - desc: "Boost when at war"
+            trigger: { has_war: "yes" }
+            factor_add: 30
+          - desc: "Boost for industrial powers"
+            trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 50 } }
+            factor_add: 20
+
+      - id: aluminium
+        base_value: 15
+        desc: "Aluminium for air production"
+        factors:
+          - desc: "Boost when air threat high"
+            trigger: { check_variable: { var: dai_air_threat, compare: greater_than, value: 0.3 } }
+            factor_add: 25
+          - desc: "Boost for industrial powers building planes"
+            trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 40 } }
+            factor_add: 15
+
+      - id: rubber
+        base_value: 15
+        desc: "Rubber for motorized and air production"
+        factors:
+          - desc: "Boost when at war"
+            trigger: { has_war: "yes" }
+            factor_add: 20
+          - desc: "Boost for industrial powers"
+            trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 45 } }
+            factor_add: 15
+
+      - id: tungsten
+        base_value: 10
+        desc: "Tungsten for anti-tank and advanced equipment"
+        factors:
+          - desc: "Boost when enemy armour threatens"
+            trigger: { check_variable: { var: dai_enemy_armor_threat, compare: greater_than, value: 0.4 } }
+            factor_add: 25
+
+      - id: chromium
+        base_value: 10
+        desc: "Chromium for heavy equipment and ships"
+        factors:
+          - desc: "Boost for naval powers"
+            trigger: { check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.3 } }
+            factor_add: 20
+          - desc: "Boost for armour producers"
+            trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 55 } }
+            factor_add: 15
+
+# =============================================================================
+# Espionage Strategies (La Resistance DLC)
+# =============================================================================
+espionage_strategies:
+  - type: intelligence_agency_usable_operatives
+    base_value: 2
+    desc: "Number of operatives to keep available"
+    factors:
+      - desc: "More operatives during war"
+        trigger: { has_war: "yes" }
+        factor_add: 2
+      - desc: "Major powers invest more in intelligence"
+        trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
+        factor_add: 1
+
+  - type: operative_mission
+    entries:
+      - id: build_intel_network
+        base_value: 5
+        desc: "Build intelligence networks"
+        factors:
+          - desc: "High priority during peace (preparation)"
+            trigger: { has_war: "no", check_variable: { var: dai_threat_index, compare: greater_than, value: 30 } }
+            factor_add: 5
+          - desc: "Maintain during war"
+            trigger: { has_war: "yes" }
+            factor_add: 3
+
+      - id: counter_intelligence
+        base_value: 3
+        desc: "Counter-intelligence operations"
+        factors:
+          - desc: "Boost when at war"
+            trigger: { has_war: "yes" }
+            factor_add: 5
+          - desc: "Boost for major powers"
+            trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 50 } }
+            factor_add: 3
+
+      - id: sabotage
+        base_value: 0
+        desc: "Sabotage enemy infrastructure"
+        factors:
+          - desc: "Only during war"
+            trigger: { has_war: "yes" }
+            factor_add: 5
+          - desc: "Boost when on defensive"
+            trigger: { check_variable: { var: dai_war_defensive_priority, compare: greater_than, value: 50 } }
+            factor_add: 5
+
+# =============================================================================
+# Diplomatic Target Strategies (generic — no country tags)
+# Uses country_trigger to target by ideology/faction/neighbor, not by name
+# =============================================================================
+diplomatic_target_strategies:
+  - type: antagonize
+    base_value: 0
+    desc: "Antagonize ideologically opposed threatening countries"
+    country_trigger:
+      - "has_offensive_war = yes"
+      - "NOT = { is_in_faction_with = ROOT }"
+    factors:
+      - desc: "Boost when threatened"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 40 } }
+        factor_add: 30
+      - desc: "Aggressive nations antagonize more"
+        trigger: { check_variable: { var: dai_political_aggression, compare: greater_than, value: 0.1 } }
+        factor_add: 20
+
+  - type: befriend
+    base_value: 10
+    desc: "Befriend ideologically aligned countries"
+    country_trigger:
+      - "has_same_ideology = yes"
+      - "NOT = { has_war_with = ROOT }"
+    factors:
+      - desc: "Diplomatic nations befriend more"
+        trigger: { check_variable: { var: dai_political_diplo_stance, compare: greater_than, value: 0.05 } }
+        factor_add: 30
+      - desc: "Boost when threatened (seek allies)"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 40 } }
+        factor_add: 20
+
+  - type: protect
+    base_value: 0
+    desc: "Protect weaker ideologically aligned countries"
+    country_trigger:
+      - "has_same_ideology = yes"
+      - "is_major = no"
+    factors:
+      - desc: "Major powers protect minors"
+        trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
+        factor_add: 30
+      - desc: "Diplomatic nations protect more"
+        trigger: { check_variable: { var: dai_political_diplo_stance, compare: greater_than, value: 0.05 } }
+        factor_add: 20
+
+  - type: contain
+    base_value: 0
+    desc: "Contain aggressive major powers"
+    country_trigger:
+      - "is_major = yes"
+      - "has_offensive_war = yes"
+      - "NOT = { is_in_faction_with = ROOT }"
+    factors:
+      - desc: "Boost for defensive nations"
+        trigger: { check_variable: { var: dai_political_aggression, compare: less_than, value: 0 } }
+        factor_add: 30
+      - desc: "Boost when own threat is high"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 50 } }
+        factor_add: 25
+
+  - type: conquer
+    base_value: 0
+    desc: "Conquer weaker neighbouring countries"
+    country_trigger:
+      - "is_neighbor_of = ROOT"
+      - "NOT = { is_in_faction_with = ROOT }"
+    factors:
+      - desc: "Only for aggressive nations"
+        trigger: { check_variable: { var: dai_political_aggression, compare: greater_than, value: 0.1 } }
+        factor_add: 30
+      - desc: "Boost when war readiness high"
+        trigger: { check_variable: { var: dai_gs_war_readiness, compare: greater_than, value: 60 } }
+        factor_add: 25
+      - desc: "Suppress for defensive nations"
+        trigger: { check_variable: { var: dai_political_aggression, compare: less_than, value: -0.05 } }
+        factor_add: -50
+
+  - type: ignore
+    base_value: 20
+    desc: "Ignore distant non-threatening countries"
+    country_trigger:
+      - "NOT = { is_neighbor_of = ROOT }"
+      - "NOT = { has_war_with = ROOT }"
+    factors:
+      - desc: "Reduce when at war with their faction"
+        trigger: { has_war: "yes" }
+        factor_add: -15
+
+  - type: influence
+    base_value: 0
+    desc: "Influence neutral countries ideologically"
+    country_trigger:
+      - "NOT = { has_same_ideology = yes }"
+      - "is_neighbor_of = ROOT"
+    factors:
+      - desc: "Boost for diplomatic nations"
+        trigger: { check_variable: { var: dai_political_diplo_stance, compare: greater_than, value: 0.05 } }
+        factor_add: 20
+      - desc: "Boost when not at war (peacetime influence)"
+        trigger: { has_war: "no" }
+        factor_add: 15
 
 # Game rule options
 game_rule_options:
