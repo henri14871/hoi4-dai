@@ -17,8 +17,8 @@ land_strategies:
   - type: role_ratio
     entries:
       - id: infantry
-        base_value: 70
-        desc: "Infantry as backbone"
+        base_value: 80
+        desc: "Infantry as backbone — always the priority"
         factors:
           - desc: "Increase at war when manpower available"
             trigger: { has_war: "yes", check_variable: { var: dai_manpower_ratio, compare: greater_than, value: 0.3 } }
@@ -26,6 +26,9 @@ land_strategies:
           - desc: "Decrease for high-industry nations (shift to armour)"
             trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 60 } }
             factor: 0.8
+          - desc: "Even higher at war to fill frontlines"
+            trigger: { has_war: "yes" }
+            factor: 1.2
 
       - id: armor
         base_value: 10
@@ -46,6 +49,12 @@ land_strategies:
           - desc: "Defensive posture: fewer armour"
             trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 0.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 1.5 } }
             factor: 0.5
+          - desc: "Suppress tank production when fuel critically low"
+            trigger: { check_variable: { var: dai_fuel_status, compare: less_than, value: 0.3 } }
+            factor: 0.2
+          - desc: "Civil war: focus on infantry not armour"
+            trigger: { check_variable: { var: dai_has_civil_war, compare: greater_than, value: 0.5 } }
+            factor: 0.3
 
       - id: motorized
         base_value: 5
@@ -57,32 +66,29 @@ land_strategies:
           - desc: "Suppress for minors"
             trigger: { check_variable: { var: dai_industry_score, compare: less_than, value: 25 } }
             factor: 0.1
+          - desc: "Suppress motorized when fuel low"
+            trigger: { check_variable: { var: dai_fuel_status, compare: less_than, value: 0.4 } }
+            factor: 0.5
 
       - id: garrison
-        base_value: 10
-        desc: "Garrison divisions for occupied territory"
+        base_value: 1
+        desc: "Garrison divisions — only when actually occupying non-core territory"
         factors:
-          - desc: "Boost when at war (occupied territory)"
-            trigger: { has_war: "yes" }
-            factor: 1.5
-          - desc: "Major boost for large occupation"
-            trigger: { has_war: "yes", check_variable: { var: dai_occupied_territory_size, compare: greater_than, value: 40 } }
-            factor: 2.0
-          - desc: "Extreme boost for massive occupation"
-            trigger: { has_war: "yes", check_variable: { var: dai_occupied_territory_size, compare: greater_than, value: 70 } }
-            factor: 1.5
-          - desc: "Boost for high threat (homeland defense)"
-            trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 60 } }
-            factor: 1.5
-          - desc: "Major powers need more garrisons"
-            trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
-            factor: 1.3
-          - desc: "Defensive/survival posture: more garrisons"
-            trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 0.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 1.5 } }
-            factor: 2.0
-          - desc: "Reduce when not at war"
+          - desc: "Build garrisons only when significant non-core occupation exists"
+            trigger: { has_war: "yes", check_variable: { var: dai_occupied_territory_size, compare: greater_than, value: 20 } }
+            factor: 5.0
+          - desc: "More garrisons for large occupation"
+            trigger: { has_war: "yes", check_variable: { var: dai_occupied_territory_size, compare: greater_than, value: 50 } }
+            factor: 3.0
+          - desc: "Kill garrison production when no occupation (frontlines need troops)"
+            trigger: { check_variable: { var: dai_occupied_territory_size, compare: less_than, value: 10 } }
+            factor: 0.01
+          - desc: "Zero garrisons at peace"
             trigger: { has_war: "no" }
-            factor: 0.3
+            factor: 0.01
+          - desc: "More garrisons when resistance is high in occupied territory"
+            trigger: { has_war: "yes", check_variable: { var: dai_resistance_pressure, compare: greater_than, value: 0.5 } }
+            factor: 3.0
 
       - id: mountaineers
         base_value: 3
@@ -107,15 +113,21 @@ land_strategies:
   - type: front_unit_request
     entries:
       - id: front_base
-        base_value: 20
-        desc: "Base front unit request — how many divisions per front"
+        base_value: 30
+        desc: "Base front unit request — divisions per front"
         factors:
           - desc: "More divisions when at war"
             trigger: { has_war: "yes" }
-            factor: 1.5
+            factor: 2.0
           - desc: "Even more when losing"
             trigger: { has_war: "yes", check_variable: { var: dai_military_score, compare: less_than, value: 30 } }
-            factor: 1.8
+            factor: 1.5
+          - desc: "Keep strong border garrisons at peace when any threat exists"
+            trigger: { has_war: "no", check_variable: { var: dai_threat_index, compare: greater_than, value: 15 } }
+            factor: 1.5
+          - desc: "Heavy border presence when threat high pre-war"
+            trigger: { has_war: "no", check_variable: { var: dai_threat_index, compare: greater_than, value: 40 } }
+            factor: 1.5
 
   # --- Strategic reserves ---
   - type: spare_unit_factor
@@ -139,20 +151,105 @@ land_strategies:
           - desc: "Survival posture: commit everything"
             trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 4.5 } }
             factor_add: -15
+          - desc: "Keep larger reserves in multi-front wars"
+            trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+            factor_add: 10
+          - desc: "No reserves when capital under threat"
+            trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+            factor_add: -20
+
+  # --- Garrison control: gradual scaling, not binary ---
+  # Philosophy: garrison investment should scale with ACTUAL occupation burden.
+  # No occupation = zero garrisons. Small occupation = minimal. Huge empire = proper garrisons.
+  # Crisis = abandon garrisons completely. FAI uses -9999 sledgehammer; DAI uses a gradient.
+  - type: garrison
+    entries:
+      - id: peacetime_suppress
+        base_value: -200
+        desc: "Heavily suppress garrisons at peace — no occupied territory to guard"
+        enable_triggers:
+          - { type: has_war, value: "no" }
+
+      - id: wartime_no_occupation
+        base_value: -200
+        desc: "Suppress garrisons when at war with no non-core occupation"
+        enable_triggers:
+          - { type: has_war, value: "yes" }
+          - { type: check_variable, var: dai_occupied_territory_size, compare: less_than, value: 5 }
+
+      - id: wartime_small_occupation
+        base_value: -50
+        desc: "Reduce garrisons when occupation is small — frontlines need troops more"
+        enable_triggers:
+          - { type: has_war, value: "yes" }
+          - { type: check_variable, var: dai_occupied_territory_size, compare: less_than, value: 20 }
+
+      - id: survival_abandon
+        base_value: -500
+        desc: "Abandon all garrisons when nation is collapsing — every division to the front"
+        enable_triggers:
+          - { type: has_war, value: "yes" }
+          - { type: surrender_progress_gt, value: 0.35 }
+
+      - id: crisis_abandon
+        base_value: -500
+        desc: "Abandon garrisons during equipment crisis — divisions are useless sitting in garrisons"
+        enable_triggers:
+          - { type: has_war, value: "yes" }
+          - { type: check_variable, var: dai_equipment_ratio, compare: less_than, value: 0.3 }
+
+      - id: colonial_defense
+        base_value: 80
+        desc: "Maintain minimum garrison when owning colonial territory — colonies need defense"
+        enable_triggers:
+          - { type: has_war, value: "yes" }
+          - { type: check_variable, var: dai_has_colonial_territory, compare: greater_than, value: 0.5 }
+
+      - id: coastal_invasion_defense
+        base_value: 100
+        desc: "Defend coastline when naval invasion threat detected"
+        enable_triggers:
+          - { type: has_war, value: "yes" }
+          - { type: check_variable, var: dai_naval_invasion_threat, compare: greater_than, value: 0.3 }
+
+      - id: high_resistance_garrison
+        base_value: 60
+        desc: "Extra garrison when high resistance in occupied territories"
+        enable_triggers:
+          - { type: has_war, value: "yes" }
+          - { type: check_variable, var: dai_resistance_pressure, compare: greater_than, value: 0.5 }
 
   # --- AI wanted divisions scaling ---
   - type: ai_wanted_divisions_factor
     entries:
       - id: division_count_scaling
         base_value: 0
-        desc: "Adjust total desired division count"
+        desc: "Adjust total desired division count based on posture and politics"
         factors:
           - desc: "Smart AI wants fewer, better divisions"
             trigger: { check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.3 } }
-            factor_add: -15
+            factor_add: -10
           - desc: "Major powers want more"
             trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
             factor_add: 10
+          - desc: "Aggressive nations build larger armies"
+            trigger: { check_variable: { var: dai_political_aggression, compare: greater_than, value: 0.1 } }
+            factor_add: 15
+          - desc: "Defensive nations conserve manpower"
+            trigger: { check_variable: { var: dai_political_aggression, compare: less_than, value: -0.05 } }
+            factor_add: -10
+          - desc: "Total war posture: maximum army size"
+            trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 3.5 } }
+            factor_add: 20
+          - desc: "Low manpower: stop building what you can't fill"
+            trigger: { check_variable: { var: dai_manpower_ratio, compare: less_than, value: 0.15 } }
+            factor_add: -25
+          - desc: "Scale army size with number of active enemies"
+            trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+            factor_add: 15
+          - desc: "Large multi-front war demands maximum army"
+            trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 4 } }
+            factor_add: 20
 
 # =============================================================================
 # Naval Strategies (per-profile for ship type references)
@@ -171,6 +268,12 @@ naval_strategies:
       - desc: "Boost for major naval powers"
         trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 50 } }
         factor: 1.3
+      - desc: "Suppress for landlocked nations"
+        trigger: { check_variable: { var: dai_is_coastal, compare: less_than, value: 0.5 } }
+        factor: 0.01
+      - desc: "Island nations prioritize navy heavily"
+        trigger: { check_variable: { var: dai_is_island_nation, compare: greater_than, value: 0.5 } }
+        factor: 2.5
 
   - abstract_equip: EQUIP_CAPITAL_SHIP
     type: unit_ratio
@@ -184,6 +287,12 @@ naval_strategies:
       - desc: "Suppress for low industry"
         trigger: { check_variable: { var: dai_industry_score, compare: less_than, value: 35 } }
         factor: 0.2
+      - desc: "Suppress for landlocked nations"
+        trigger: { check_variable: { var: dai_is_coastal, compare: less_than, value: 0.5 } }
+        factor: 0.01
+      - desc: "Island nations prioritize navy heavily"
+        trigger: { check_variable: { var: dai_is_island_nation, compare: greater_than, value: 0.5 } }
+        factor: 2.5
 
   - abstract_equip: EQUIP_SUBMARINE
     type: unit_ratio
@@ -197,6 +306,9 @@ naval_strategies:
       - desc: "Boost for resource-starved nations (deny trade)"
         trigger: { check_variable: { var: dai_resource_need, compare: greater_than, value: 0.5 } }
         factor: 1.5
+      - desc: "Suppress for landlocked nations"
+        trigger: { check_variable: { var: dai_is_coastal, compare: less_than, value: 0.5 } }
+        factor: 0.01
 
   - abstract_equip: EQUIP_CONVOY
     type: unit_ratio
@@ -210,6 +322,12 @@ naval_strategies:
       - desc: "High priority when naval threat"
         trigger: { check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.4 } }
         factor: 2.0
+      - desc: "Suppress for landlocked nations"
+        trigger: { check_variable: { var: dai_is_coastal, compare: less_than, value: 0.5 } }
+        factor: 0.01
+      - desc: "Island nations need convoys for survival"
+        trigger: { check_variable: { var: dai_is_island_nation, compare: greater_than, value: 0.5 } }
+        factor: 2.5
 
   # General naval posture strategies
   - type: naval_invasion_focus
@@ -233,6 +351,9 @@ naval_strategies:
       - desc: "Fewer dockyards for landlocked/minor"
         trigger: { check_variable: { var: dai_gps, compare: less_than, value: 25 } }
         factor_add: -10
+      - desc: "No dockyards for landlocked nations"
+        trigger: { check_variable: { var: dai_is_coastal, compare: less_than, value: 0.5 } }
+        factor_add: -15
 
 # =============================================================================
 # Air Strategies (per-profile for aircraft type references)
@@ -425,6 +546,16 @@ frontline_strategies:
         - { type: has_war, value: "yes" }
         - { type: check_variable, var: dai_war_defensive_priority, compare: greater_than, value: 40 }
 
+    - name: front_stagnation_hold
+      priority: 1500
+      execution_type: careful
+      execute_order: "yes"
+      manual_attack: "no"
+      desc: "Stagnation hold — conserve forces during prolonged stalemate"
+      enable_triggers:
+        - { type: has_war, value: "yes" }
+        - { type: check_variable, var: dai_front_stagnation, compare: greater_than, value: 0.5 }
+
     - name: balanced_warfare
       priority: 1000
       execution_type: balanced
@@ -508,6 +639,12 @@ frontline_strategies:
         - desc: "Offensive posture: concentrated allocation"
           trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 2.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 3.5 } }
           factor_add: 20
+        - desc: "More divisions per front when fighting multiple enemies"
+          trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 3 } }
+          factor_add: 25
+        - desc: "Emergency reinforcement when capital threatened"
+          trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+          factor_add: 50
 
     - name: peacetime_garrison
       base_value: -20
@@ -528,12 +665,24 @@ frontline_strategies:
         - desc: "Boost when threatened"
           trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 40 } }
           factor_add: 30
+        - desc: "Boost when we own European territory"
+          trigger: { any_owned_state_on_continent: "europe" }
+          factor_add: 20
+        - desc: "Boost when ally war threatens our European borders"
+          trigger: { check_variable: { var: dai_faction_border_threat, compare: greater_than, value: 25 }, any_owned_state_on_continent: "europe" }
+          factor_add: 20
     - area: asia
       base_value: 30
       desc: "Asian theatre"
       factors:
         - desc: "Boost when at war"
           trigger: { has_war: "yes" }
+          factor_add: 20
+        - desc: "Major boost when we own Asian territory"
+          trigger: { any_owned_state_on_continent: "asia" }
+          factor_add: 35
+        - desc: "Extra when at war and owning Asian territory"
+          trigger: { has_war: "yes", any_owned_state_on_continent: "asia" }
           factor_add: 20
     - area: pacific
       base_value: 20
@@ -542,6 +691,9 @@ frontline_strategies:
         - desc: "Boost for naval powers at war"
           trigger: { has_war: "yes", check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.2 } }
           factor_add: 30
+        - desc: "Boost when we own Pacific territory"
+          trigger: { any_owned_state_on_continent: "oceania" }
+          factor_add: 25
     - area: africa
       base_value: 10
       desc: "African theatre"
@@ -549,6 +701,18 @@ frontline_strategies:
         - desc: "Boost when at war"
           trigger: { has_war: "yes" }
           factor_add: 10
+        - desc: "Major boost when we own African territory"
+          trigger: { any_owned_state_on_continent: "africa" }
+          factor_add: 40
+        - desc: "Extra when at war and owning African territory"
+          trigger: { has_war: "yes", any_owned_state_on_continent: "africa" }
+          factor_add: 25
+        - desc: "Boost when ally war threatens our African presence"
+          trigger: { check_variable: { var: dai_faction_border_threat, compare: greater_than, value: 20 }, any_owned_state_on_continent: "africa" }
+          factor_add: 15
+        - desc: "Deprioritize colonial theater when navy cannot defend it"
+          trigger: { any_owned_state_on_continent: "africa", check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.5 } }
+          factor_add: -20
     - area: middle_east
       base_value: 15
       desc: "Middle East theatre"
@@ -556,12 +720,26 @@ frontline_strategies:
         - desc: "Boost when resources needed"
           trigger: { check_variable: { var: dai_resource_need, compare: greater_than, value: 0.5 } }
           factor_add: 20
+        - desc: "Boost when we own Middle East territory"
+          trigger: { any_owned_state_on_continent: "middle_east" }
+          factor_add: 30
+        - desc: "Extra when at war and owning Middle East territory"
+          trigger: { has_war: "yes", any_owned_state_on_continent: "middle_east" }
+          factor_add: 15
     - area: south_america
       base_value: 5
       desc: "South American theatre"
+      factors:
+        - desc: "Boost when we own South American territory"
+          trigger: { any_owned_state_on_continent: "south_america" }
+          factor_add: 30
     - area: north_america
       base_value: 10
       desc: "North American theatre"
+      factors:
+        - desc: "Boost when we own North American territory"
+          trigger: { any_owned_state_on_continent: "north_america" }
+          factor_add: 20
 
   # --- THEATRE DISTRIBUTION DEMAND ---
   theatre_demands:

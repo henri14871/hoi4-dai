@@ -69,6 +69,26 @@ variables:
   - { name: dai_needs_priority,          range: [0, 100],    desc: "Critical need urgency score" }
   - { name: dai_strategic_posture,       range: [0, 5],      desc: "Strategic posture (0=Buildup..5=Survival)" }
   - { name: dai_enemy_armor_threat,      range: [0, 1.0],    desc: "Enemy armoured force pressure" }
+  - { name: dai_faction_border_threat,   range: [0, 100],    desc: "Threat from neighbours at war with faction allies" }
+  - { name: dai_has_colonial_territory,  range: [0, 1],      desc: "Whether nation owns territory on multiple continents" }
+
+  # --- Situational awareness variables ---
+  - { name: dai_naval_invasion_threat,  range: [0, 1.0],  desc: "Enemy amphibious invasion threat level" }
+  - { name: dai_fuel_status,            range: [0, 1.0],  desc: "Fuel availability ratio" }
+  - { name: dai_is_puppet,              range: [0, 1],    desc: "Whether nation is a puppet/subject" }
+  - { name: dai_is_coastal,             range: [0, 1],    desc: "Whether nation has any coastal states" }
+  - { name: dai_stability_status,       range: [0, 1.0],  desc: "Current stability level" }
+  - { name: dai_war_support_status,     range: [0, 1.0],  desc: "Current war support level" }
+  - { name: dai_num_active_enemies,     range: [0, 20],   desc: "Count of nations currently at war with" }
+  - { name: dai_air_crisis,             range: [0, 1],    desc: "Emergency air threat flag" }
+  - { name: dai_casualty_pressure,      range: [0, 1.0],  desc: "Casualty-driven strategic pressure" }
+  - { name: dai_is_faction_leader,      range: [0, 1],    desc: "Whether nation leads its faction" }
+  - { name: dai_front_stagnation,       range: [0, 1],    desc: "Prolonged front stalemate detected" }
+  - { name: dai_has_civil_war,          range: [0, 1],    desc: "Whether nation is in civil war" }
+  - { name: dai_capital_threatened,     range: [0, 1],    desc: "Enemy forces near capital" }
+  - { name: dai_is_island_nation,       range: [0, 1],    desc: "All core territory is island/coastal" }
+  - { name: dai_has_nukes,              range: [0, 1],    desc: "Has nuclear weapons capability" }
+  - { name: dai_resistance_pressure,    range: [0, 1.0],  desc: "Resistance in occupied territories" }
 
 # Political modifier values per ideology
 ideology_modifiers:

@@ -7,20 +7,70 @@
 defines:
   NAI:
     # === Garrison ===
-    GARRISON_FRACTION: 0.08                     # vanilla ~0.05, stronger garrisons
+    # Moderate floor — DAI's garrison ai_strategy handles the dynamic scaling.
+    # VPs yes, coastlines no: AI defends cities, not empty beaches.
+    GARRISON_FRACTION: 0.04                     # low baseline (vanilla 0.05); ai_strategy scales up
+    AREA_DEFENSE_SETTING_VP: true               # defend VPs instead of coastline spam
+    AREA_DEFENSE_SETTING_COASTLINES: false       # coastline garrison is a division sink
+    AREA_DEFENSE_SETTING_BORDERS: false          # border garrison handled by front orders
+    LAND_DESIGN_DEMAND_GARRISON_DIVISION: 6     # minimal garrison templates (vanilla 10)
+    LAND_DESIGN_DEMAND_FIELD_DIVISION: 28       # more frontline templates (vanilla 20)
 
     # === Frontline Behaviour ===
-    FRONT_TERRAIN_ATTACK_FACTOR: 0.3            # more cautious in bad terrain
-    PLAN_VALUE_TO_EXECUTE: 0.35                 # execute plans earlier when ready
+    # Moderate terrain factors — DAI's posture system overrides via front_control:
+    #   Offensive posture rushes regardless, Defensive respects terrain heavily.
+    FRONT_TERRAIN_ATTACK_FACTOR: 4.0            # meaningful but not paralysing (FAI 7, vanilla 1)
+    FRONT_TERRAIN_DEFENSE_FACTOR: 5.0           # defenders get more terrain benefit
+    PLAN_VALUE_TO_EXECUTE: -0.3                 # moderate (FAI -0.6 causes suicidal attacks, vanilla -0.5)
     PLAN_ATTACK_DEPTH_FACTOR: 0.8               # don't overextend
+    PLAN_SPREAD_ATTACK_WEIGHT: 200              # reduce overcrowding (FAI 300, vanilla 12)
+    PLAN_MIN_AUTOMATED_EMPTY_POCKET_SIZE: 8     # auto-attack empty pockets
+    FRONT_BULGE_RATIO_LOWER_CUTOFF: 0.88        # better pocket detection (FAI 0.85, vanilla 0.95)
+
+    # === Combat Evaluation ===
+    # AI reads the battlefield better — these are pure improvements.
+    FRONT_EVAL_UNIT_ACCURACY: 1.8               # better than vanilla, not as extreme as FAI 2.0
+    FRONT_EVAL_UNIT_AIR_SUP_IMPACT: 1.8         # air matters in combat evaluation
+    FRONT_EVAL_UNIT_SUPPLY_AND_ORG_LACK_IMPACT: 2.0  # supply/org problems matter a lot
+    FRONT_EVAL_PERCENT_TO_ASSIST_ALLY_FRONT: 0.85    # help allies more (FAI 0.75, vanilla 0.5)
+    CANCEL_COMBAT_DISADVANTAGE_RATIO: 1.3       # retreat from bad fights (FAI 1.25, vanilla 1.5)
+
+    # === Armor Assignment ===
+    # Moderate base — DAI front_armor_score steers armor dynamically.
+    ASSIGN_TANKS_TO_WAR_FRONT: 8.0              # strong preference for active fronts (FAI 12, vanilla 6)
+    ASSIGN_TANKS_TO_NON_WAR_FRONT: 0.2          # minimal peacetime armor on borders
+    ASSIGN_TANKS_TO_MOUNTAINS: -8.0             # strong penalty, not absolute
+    ASSIGN_TANKS_TO_JUNGLE: -8.0                # strong penalty, not absolute
+    ASSIGN_MOUNTAINEERS_TO_MOUNTAINS: 40.0      # mountaineers to mountains
+
+    # === Manpower & Deployment ===
+    # Moderate base — DAI's posture adjusts aggression dynamically.
+    # Aggressive nations (high dai_political_aggression) override via ai_wanted_divisions_factor.
+    MANPOWER_RATIO_CAREFULNESS_THRESHOLD: 0.15  # more careful than vanilla 0.05, less than FAI 0.25
+    DEPLOYED_UNIT_MANPOWER_RATIO_TO_BUFFER_WARTIME: 0.15  # 15% reinforcement reserve
+
+    # === Unit Assignment ===
+    REASSIGN_TO_ANOTHER_FRONT_IF_IN_COMBAT_FACTOR: 0.1  # reluctant to pull mid-combat (FAI 0.05, vanilla 0.2)
+    UNIT_ASSIGNMENT_TERRAIN_IMPORTANCE: 8.0      # terrain-aware placement
+
+    # === Supply ===
+    AVERAGE_SUPPLY_USE_PESSIMISM: 1.7           # slightly pessimistic (FAI 2.0, vanilla 1.0)
+    DEFAULT_SUPPLY_TRUCK_BUFFER_RATIO: 1.8      # reasonable truck buffer
 
     # === Naval ===
-    CONVOY_ESCORT_PRIORITY: 1.5                 # protect convoys better
-    NAVAL_MISSION_SPREAD_BASE: 0.6              # better naval coverage
+    CONVOY_ESCORT_PRIORITY: 1.5                 # protect convoys
+    NAVAL_MISSION_SPREAD_BASE: 0.6              # naval coverage
+    MAX_DISTANCE_NAVAL_INVASION: 350            # extended but not unlimited (FAI 400, vanilla 200)
 
-    # === Production ===
+    # === Production & Advisors ===
+    # Moderate advisor weight — DAI's pp_spend_priority handles the nuance:
+    #   early game = advisors, wartime = decisions, mobilising = laws.
     PRODUCTION_LINE_SWITCH_FACTOR: 0.7          # less penalty for switching lines
-    EQUIPMENT_SURPLUS_FACTOR: 0.3               # keep less surplus, use everything
+    EQUIPMENT_SURPLUS_FACTOR: 0.3               # use everything
+    DESIRE_USE_XP_TO_UPDATE_LAND_TEMPLATE: 80.0   # prioritize templates (vanilla ~50, FAI 100)
+    CHIEF_ADDED_WEIGHT_FACTOR: 200              # prioritize chiefs without tunnel vision (FAI 1000)
+    HIGH_COMMAND_ADDED_WEIGHT_FACTOR: 8.0       # high command matters (FAI 10)
 
     # === Air ===
-    AIR_SUPERIORITY_IMPORTANCE: 1.3             # value air superiority more
+    AIR_SUPERIORITY_IMPORTANCE: 1.7             # important but not everything (FAI 2.0, vanilla 1.0)
+    AIR_SUPERIORITY_FACTOR: 1.7                 # matched

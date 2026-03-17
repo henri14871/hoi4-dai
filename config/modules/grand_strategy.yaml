@@ -15,41 +15,77 @@ diplomacy_strategies:
 
   # --- Faction and alliance behaviour ---
   - type: force_defend_ally_borders
-    base_value: 50
-    desc: "Willingness to defend allies"
+    base_value: 40
+    desc: "Willingness to defend allies — scales with actual border exposure"
     factors:
-      - desc: "Boost when in faction at war"
-        trigger: { has_war: "yes" }
+      - desc: "Boost when at peace but ally's enemy neighbours us"
+        trigger: { has_war: "no", check_variable: { var: dai_faction_border_threat, compare: greater_than, value: 10 } }
+        factor_add: 40
+      - desc: "Major boost when neighbour is at war with our ally"
+        trigger: { check_variable: { var: dai_faction_border_threat, compare: greater_than, value: 30 } }
         factor_add: 30
+      - desc: "Maximum when at war ourselves"
+        trigger: { has_war: "yes" }
+        factor_add: 40
       - desc: "Reduce for isolationist nations"
         trigger: { check_variable: { var: dai_political_diplo_stance, compare: less_than, value: -0.05 } }
-        factor_add: -30
+        factor_add: -20
+      - desc: "Puppets always defend master's borders"
+        trigger: { check_variable: { var: dai_is_puppet, compare: greater_than, value: 0.5 } }
+        factor_add: 60
+      - desc: "Faction leaders must defend allies"
+        trigger: { check_variable: { var: dai_is_faction_leader, compare: greater_than, value: 0.5 } }
+        factor_add: 30
 
   - type: dont_defend_ally_borders
     base_value: 0
-    desc: "Refusal to defend distant allies"
+    desc: "Refusal to defend distant allies — but NOT when threat is on our border"
     factors:
-      - desc: "Boost when own borders threatened"
-        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 60 } }
+      - desc: "Boost when own borders extremely threatened (all hands on deck)"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 70 } }
         factor_add: 50
       - desc: "Boost for isolationist AI"
         trigger: { check_variable: { var: dai_political_diplo_stance, compare: less_than, value: -0.1 } }
         factor_add: 30
+      - desc: "REDUCE refusal when ally's enemy is on our border (this IS our problem)"
+        trigger: { check_variable: { var: dai_faction_border_threat, compare: greater_than, value: 20 } }
+        factor_add: -40
+      - desc: "Puppets never refuse to defend master"
+        trigger: { check_variable: { var: dai_is_puppet, compare: greater_than, value: 0.5 } }
+        factor_add: -50
 
   # --- War declaration evaluation ---
   - type: prepare_for_war
-    base_value: 0
+    base_value: 20
     desc: "General war preparation urgency"
     factors:
       - desc: "Aggressive nations prepare earlier"
         trigger: { check_variable: { var: dai_political_aggression, compare: greater_than, value: 0.1 } }
         factor_add: 50
-      - desc: "High threat drives preparation"
+      - desc: "High threat drives full preparation"
         trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 50 } }
-        factor_add: 40
+        factor_add: 50
+      - desc: "Moderate threat warrants strong preparation"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 25 } }
+        factor_add: 30
+      - desc: "Even low threat means basic readiness"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 10 } }
+        factor_add: 15
       - desc: "Smart AI prepares earlier"
         trigger: { check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.2 } }
         factor_add: 20
+      - desc: "Puppets don't independently prepare for wars"
+        trigger: { check_variable: { var: dai_is_puppet, compare: greater_than, value: 0.5 } }
+        factor_add: -40
+      - desc: "Faction leaders prepare more aggressively"
+        trigger: { check_variable: { var: dai_is_faction_leader, compare: greater_than, value: 0.5 } }
+        factor_add: 25
+      - desc: "Weak nations should prepare harder"
+        trigger: { check_variable: { var: dai_military_score, compare: less_than, value: 40 } }
+        factor_add: 20
+      - desc: "High war support enables faster mobilization"
+        trigger: { check_variable: { var: dai_war_support_status, compare: greater_than, value: 0.6 } }
+        factor_add: 15
 
   # --- Lend-lease behaviour ---
   - type: send_lend_lease_desire
@@ -65,6 +101,12 @@ diplomacy_strategies:
       - desc: "Reduce when own equipment is low"
         trigger: { check_variable: { var: dai_equipment_ratio, compare: less_than, value: 0.5 } }
         factor_add: -50
+      - desc: "Faction leaders send more lend-lease"
+        trigger: { check_variable: { var: dai_is_faction_leader, compare: greater_than, value: 0.5 } }
+        factor_add: 30
+      - desc: "No lend-lease during civil war"
+        trigger: { check_variable: { var: dai_has_civil_war, compare: greater_than, value: 0.5 } }
+        factor_add: -100
 
   # --- Volunteer sending ---
   - type: send_volunteers_desire
@@ -77,6 +119,12 @@ diplomacy_strategies:
       - desc: "Communist nations support aligned wars"
         trigger: { check_variable: { var: dai_political_diplo_stance, compare: greater_than, value: 0.05 } }
         factor_add: 20
+      - desc: "Puppets don't send volunteers independently"
+        trigger: { check_variable: { var: dai_is_puppet, compare: greater_than, value: 0.5 } }
+        factor_add: -20
+      - desc: "No volunteers during civil war"
+        trigger: { check_variable: { var: dai_has_civil_war, compare: greater_than, value: 0.5 } }
+        factor_add: -100
 
 # =============================================================================
 # Economy Strategies — mobilisation timing and factory balance
@@ -179,6 +227,9 @@ economy_law_strategies:
       - desc: "EMERGENCY: at war with depleting manpower"
         trigger: { has_war: "yes", check_variable: { var: dai_manpower_ratio, compare: less_than, value: 0.2 } }
         priority: 90
+      - desc: "Cannot upgrade conscription without sufficient war support"
+        trigger: { check_variable: { var: dai_war_support_status, compare: less_than, value: 0.3 } }
+        priority: -50
 
 # =============================================================================
 # Peace Conference Strategies (profile-independent)
@@ -188,6 +239,7 @@ peace_strategies:
     base_aggressive: 30
     base_strategic: 50
     base_puppet: 20
+    base_liberate: 10
     factors:
       - desc: "Aggressive nations grab more land"
         trigger: { check_variable: { var: dai_political_aggression, compare: greater_than, value: 0.1 } }
@@ -201,6 +253,13 @@ peace_strategies:
         trigger: { check_variable: { var: dai_political_aggression, compare: less_than, value: -0.05 } }
         puppet_add: 20
         aggressive_add: -15
+      - desc: "Democracies prefer liberation over annexation"
+        trigger: { check_variable: { var: dai_political_aggression, compare: less_than, value: -0.1 } }
+        liberate_add: 30
+        aggressive_add: -20
+      - desc: "Nuclear powers are more assertive in peace deals"
+        trigger: { check_variable: { var: dai_has_nukes, compare: greater_than, value: 0.5 } }
+        strategic_add: 15
 
 # =============================================================================
 # Political Power Spending Priorities
@@ -222,6 +281,9 @@ pp_spend_strategies:
           - desc: "Boost when mobilisation urgency low (spend on advisors)"
             trigger: { check_variable: { var: dai_gs_mobilisation_urgency, compare: less_than, value: 30 } }
             factor_add: 20
+          - desc: "Boost advisor spending when stability critically low"
+            trigger: { check_variable: { var: dai_stability_status, compare: less_than, value: 0.3 } }
+            factor_add: 40
 
       - id: decision
         base_value: 30
@@ -233,6 +295,9 @@ pp_spend_strategies:
           - desc: "Boost for high threat (war preparation decisions)"
             trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 50 } }
             factor_add: 25
+          - desc: "Boost decision spending when stability low (stability decisions)"
+            trigger: { check_variable: { var: dai_stability_status, compare: less_than, value: 0.4 } }
+            factor_add: 30
 
       - id: law
         base_value: 40

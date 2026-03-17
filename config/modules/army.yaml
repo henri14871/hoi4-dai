@@ -282,6 +282,9 @@ production_strategies:
       - desc: "Boost when air threat high"
         trigger: { check_variable: { var: dai_air_threat, compare: greater_than, value: 0.4 } }
         factor: 2.5
+      - desc: "AIR CRISIS: emergency AA production"
+        trigger: { check_variable: { var: dai_air_crisis, compare: greater_than, value: 0.5 } }
+        factor: 3.0
 
   - abstract_equip: EQUIP_MOTORIZED
     production_type: motorized
@@ -300,6 +303,9 @@ production_strategies:
       - desc: "Major boost during supply crisis"
         trigger: { has_war: "yes", check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.6 } }
         factor: 1.5
+      - desc: "Reduce motorized production when fuel low"
+        trigger: { check_variable: { var: dai_fuel_status, compare: less_than, value: 0.4 } }
+        factor: 0.5
 
   - abstract_equip: EQUIP_ARMOUR
     production_type: armor
@@ -321,6 +327,9 @@ production_strategies:
       - desc: "Survival posture: suppress luxury production"
         trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 4.5 } }
         factor: 0.1
+      - desc: "Suppress tank production when fuel critically low"
+        trigger: { check_variable: { var: dai_fuel_status, compare: less_than, value: 0.3 } }
+        factor: 0.2
 
   - abstract_equip: EQUIP_FIGHTER
     production_type: fighter
@@ -336,6 +345,9 @@ production_strategies:
       - desc: "EMERGENCY: reduce air production during equipment crisis (unless air threatened)"
         trigger: { check_variable: { var: dai_needs_override_active, compare: greater_than, value: 0.5 }, check_variable_2: { var: dai_air_threat, compare: less_than, value: 0.3 } }
         factor: 0.3
+      - desc: "AIR CRISIS: emergency fighter production"
+        trigger: { check_variable: { var: dai_air_crisis, compare: greater_than, value: 0.5 } }
+        factor: 3.0
 
   - abstract_equip: EQUIP_CAS
     production_type: cas
@@ -407,6 +419,9 @@ construction_strategies:
       - desc: "Suppress for landlocked/minor"
         trigger: { check_variable: { var: dai_gps, compare: less_than, value: 25 } }
         factor: 0.2
+      - desc: "Never build dockyards when landlocked"
+        trigger: { check_variable: { var: dai_is_coastal, compare: less_than, value: 0.5 } }
+        factor: 0.01
 
   # --- Supply infrastructure (fixes Frontline AI known issue: limited supply construction) ---
   - type: infrastructure
@@ -462,6 +477,51 @@ construction_strategies:
       - desc: "Rarely build at peace"
         trigger: { has_war: "no" }
         factor: 0.2
+
+  # --- Synthetic refineries for fuel and rubber (#9) ---
+  - type: synthetic_refinery
+    base_value: 0
+    desc: "Synthetic refineries for fuel and rubber"
+    factors:
+      - desc: "Build when resource-starved with sufficient industry"
+        trigger: { check_variable: { var: dai_resource_need, compare: greater_than, value: 0.5 }, check_variable_2: { var: dai_industry_score, compare: greater_than, value: 40 } }
+        factor_add: 30
+      - desc: "Emergency build when fuel critically low"
+        trigger: { check_variable: { var: dai_fuel_status, compare: less_than, value: 0.3 }, check_variable_2: { var: dai_industry_score, compare: greater_than, value: 30 } }
+        factor_add: 50
+      - desc: "Boost when at war and resource-starved"
+        trigger: { has_war: "yes", check_variable: { var: dai_resource_need, compare: greater_than, value: 0.6 } }
+        factor_add: 40
+      - desc: "Suppress for low-industry nations"
+        trigger: { check_variable: { var: dai_industry_score, compare: less_than, value: 25 } }
+        factor_add: -20
+
+  # --- Radar stations (#10) ---
+  - type: radar_station
+    base_value: 0
+    desc: "Radar stations for air and naval detection"
+    factors:
+      - desc: "Build when air threat significant"
+        trigger: { check_variable: { var: dai_air_threat, compare: greater_than, value: 0.3 }, check_variable_2: { var: dai_industry_score, compare: greater_than, value: 40 } }
+        factor_add: 20
+      - desc: "More radar during air crisis"
+        trigger: { check_variable: { var: dai_air_crisis, compare: greater_than, value: 0.5 } }
+        factor_add: 30
+      - desc: "Major powers build radar early"
+        trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
+        factor_add: 10
+
+  # --- Air bases (#10) ---
+  - type: air_base
+    base_value: 0
+    desc: "Air bases for extended air operations"
+    factors:
+      - desc: "Build when at war with high industry"
+        trigger: { has_war: "yes", check_variable: { var: dai_industry_score, compare: greater_than, value: 50 } }
+        factor_add: 15
+      - desc: "More during air crisis"
+        trigger: { check_variable: { var: dai_air_crisis, compare: greater_than, value: 0.5 } }
+        factor_add: 20
 
 # =============================================================================
 # Equipment Variant Production — prefer newer variants
@@ -527,6 +587,9 @@ template_prio_strategies:
           - desc: "Boost only when large occupied territory"
             trigger: { check_variable: { var: dai_occupied_territory_size, compare: greater_than, value: 40 } }
             factor: 3.0
+          - desc: "High resistance requires garrison upgrades"
+            trigger: { check_variable: { var: dai_resistance_pressure, compare: greater_than, value: 0.5 } }
+            factor: 2.5
 
 # Game rule options
 game_rule_options:

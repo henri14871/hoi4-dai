@@ -1,220 +1,216 @@
 # DAI - Smarter AI
 
-**Make the AI play like it actually wants to win.**
+**The AI finally plays the game you're playing.**
 
-DAI is a modular, fully dynamic AI overhaul for Hearts of Iron IV. Every decision the AI makes — what to research, what to produce, when to attack, when to stop — is driven by real-time evaluation of game state. No hardcoded country tags. No scripted date triggers. No nation-specific logic. The AI reads the board and reacts, just like a human player would.
+DAI is a modular AI overhaul for Hearts of Iron IV that replaces the AI's broken decision-making with 40+ dynamic evaluation variables. No country scripts. No fixed dates. No tag-specific rails. The AI scores its own economy, military, technology, logistics, fuel, air threat, naval threat, invasion risk, casualties, stability, and political posture -- then makes decisions that actually make sense.
 
-The result: AI that builds supply infrastructure when it conquers territory, garrisons occupied land properly, stops attacking when it runs out of equipment, concentrates armour on weak sectors, and coordinates production, research, and diplomacy into a coherent strategy.
+The result: fewer obviously suicidal offensives, proper coastal defense, fuel-aware production, real multi-front scaling, and late-game opponents that stay dangerous instead of collapsing into AI nonsense.
 
-**Version:** 1.0.0 | **HOI4:** 1.17.4.1+ | **DLC Required:** None
-
----
-
-## What changes in your game
-
-- **AI builds supply infrastructure.** Railways, supply hubs, and infrastructure scale with logistics strain. No more offensives grinding to a halt because the AI forgot about supply.
-- **Garrisons scale with occupation.** Germany garrisons France. Japan holds the Pacific. Garrison templates upgrade as territory grows. No more free resistance spirals.
-- **AI stops ignoring its own crises.** Equipment critically low? Offensives halt automatically. Production shifts to infantry gear. Conscription laws upgrade. The AI addresses the problem instead of pretending it doesn't exist.
-- **Strategic postures coordinate everything.** A single posture variable drives all four modules: Buildup, Defensive, Balanced, Offensive, Total War, and Survival. No more modules pulling in different directions.
-- **Wars are harder.** Late-game AI is not early-game AI. Nations that industrialized are dangerous. Nations losing ground fight smarter, not dumber.
-- **Anti-tank is reactive.** The AI detects enemy armour tech and boosts AT gun production and deploys AT-focused infantry templates in response.
+**Version:** 1.1.0
+**Supported HOI4 Version:** `1.15+`
+**DLC Required:** None
 
 ---
 
-## How it works
+## What Changes In Game
+
+- The AI builds and repairs its logistics network instead of stalling entire offensives on bad supply.
+- Occupied land gets proper garrisons, scaling suppression, and stronger templates as empires expand.
+- Equipment, manpower, and supply crises trigger emergency behavior instead of suicidal attacks.
+- Frontline behavior is posture-driven, with offensive, defensive, and survival states coordinating all modules.
+- Armor is concentrated on favorable sectors instead of being wasted uniformly across fronts.
+- The AI reacts to enemy armor, air power, naval power, resistance pressure, and invasion risk.
+- Puppets, faction leaders, island nations, landlocked nations, colonial empires, and multi-front powers now evaluate their situations differently instead of sharing one generic behavior model.
+
+---
+
+## Core Model
 
 ### Global Power Score
 
-Every country gets a composite score from 0 to 100, recalculated monthly:
+Each country gets a monthly composite score from industry, military, technology, and strategic position. That feeds a competence scalar, which is then combined with the chosen preset to produce each country's effective intelligence.
 
-| Component | Weight | What it measures |
-|---|---|---|
-| Industry | 35% | Civilian + military factories, dockyards |
-| Military | 30% | Fielded divisions, manpower, army experience |
-| Technology | 20% | Researched techs relative to frontier |
-| Strategic | 15% | Threat level, faction membership, war state |
+This creates natural scaling:
 
-The GPS maps to a competence scalar (0.7-1.4), then multiplied by the global intelligence preset to produce each nation's **effective intelligence**. Major powers play with higher effective intelligence than minors — a natural difficulty gradient.
+- majors make more coherent long-range decisions
+- minors still behave sensibly without being scripted like majors
+- the AI adapts to game state, not historical tags
 
-### 22 Dynamic Variables
+### Dynamic Variables
 
-DAI tracks these variables per country, recalculated monthly:
+DAI tracks a shared set of country-level variables used across all four modules. These include:
 
-| Variable | Range | Purpose |
-|---|---|---|
-| `dai_gps` | 0-100 | Global Power Score |
-| `dai_competence` | 0.7-1.4 | Power-based competence scalar |
-| `dai_effective_intelligence` | 0.35-2.8 | Final intelligence (preset x competence) |
-| `dai_threat_index` | 0-100 | Threat from hostile neighbours |
-| `dai_industry_score` | 0-100 | Industrial strength |
-| `dai_military_score` | 0-100 | Military strength |
-| `dai_tech_score` | 0-100 | Technology advancement |
-| `dai_resource_need` | 0-1.0 | Resource starvation level |
-| `dai_air_threat` | 0-1.0 | Enemy air superiority |
-| `dai_naval_threat` | 0-1.0 | Enemy naval threat |
-| `dai_manpower_ratio` | 0-1.0 | Manpower availability |
-| `dai_equipment_ratio` | 0-1.0 | Equipment health (multi-signal estimation) |
-| `dai_supply_strain` | 0-1.0 | Logistics stress |
-| `dai_occupied_territory_size` | 0-100 | Occupied non-core territory |
-| `dai_needs_override_active` | 0/1 | Critical needs failsafe flag |
-| `dai_needs_priority` | 0-100 | Crisis urgency score |
-| `dai_strategic_posture` | 0-5 | Strategic stance (Buildup to Survival) |
-| `dai_enemy_armor_threat` | 0-1.0 | Enemy armoured force pressure |
-| `dai_political_aggression` | -0.3-0.3 | Ideology aggression modifier |
-| `dai_political_mil_priority` | -0.3-0.3 | Ideology military urgency |
-| `dai_political_diplo_stance` | -0.3-0.3 | Ideology diplomatic modifier |
-| `dai_political_doctrine_bias` | -0.3-0.3 | Ideology doctrine preference |
+- power and competence: `dai_gps`, `dai_competence`, `dai_effective_intelligence`
+- pressure signals: `dai_threat_index`, `dai_supply_strain`, `dai_resource_need`, `dai_manpower_ratio`, `dai_equipment_ratio`
+- warfare signals: `dai_air_threat`, `dai_naval_threat`, `dai_enemy_armor_threat`, `dai_war_offensive_readiness`, `dai_war_defensive_priority`
+- political and strategic signals: `dai_strategic_posture`, `dai_political_aggression`, `dai_political_mil_priority`, `dai_political_diplo_stance`
+- occupation and coordination signals: `dai_occupied_territory_size`, `dai_faction_border_threat`, `dai_has_colonial_territory`, `dai_needs_override_active`
 
-Every ai_strategy factor in the mod reads from these variables. The AI adapts because the variables change — not because someone wrote "Germany attacks Poland in 1939."
+The system also evaluates:
 
-### Four Modules
+- naval invasion defense and coastal threat response
+- graduated air and naval threat scoring (multi-signal, not binary)
+- puppet status and faction leader/member distinction
+- fuel ratio, stability, war support, casualties, and resistance pressure
+- coastal vs. landlocked logic and island nation posture
+- multi-front enemy counting and front scaling
+- capital threat, civil war, nuclear capability, and front stagnation detection
 
-Each module can be toggled independently via game rules:
+---
 
-- **Research** — 7 tech branches dynamically weighted. Industrial powers research tanks. Naval powers research ships. Posture-driven: survival mode prioritises infantry tech 2x.
-- **Army** — 8 equipment categories, 6 construction types (including infrastructure, supply hubs, railways), adaptive division templates with progressive upgrading, reactive AT deployment, emergency production overrides.
-- **Warfare** — 9-tier frontline cascade, armour concentration (Schwerpunkt), force massing, 7 theatre zones, naval invasion readiness scoring, posture-driven front allocation.
-- **Grand Strategy** — threat-based diplomacy, posture-driven mobilisation, supply train scaling, conscription failsafe, strategic peace conferences.
+## Modules
 
-### Strategic Posture System
+DAI is split into four modules, each toggleable through game rules.
 
-A single variable coordinates all four modules:
+### Research
 
-| Posture | Triggers | Effect |
-|---|---|---|
-| **Buildup** (0) | At peace | Civilian factories 2.5x, industry research 1.5x |
-| **Defensive** (1) | At war, weak military or low equipment | Garrison ratio 2x, armour ratio 0.5x, front allocation +40 |
-| **Balanced** (2) | At war (default) | Standard wartime factors |
-| **Offensive** (3) | High readiness + equipment | Armour ratio 2x, tank production 2x, armour research 1.3x |
-| **Total War** (4) | High threat + aggressive ideology | Military factory 3x, military ratio +60 |
-| **Survival** (5) | Surrender >30% or equipment <0.2 | Infantry production 4x, tanks 0.1x, infantry research 2x |
+- 7 adaptive research branches
+- weights react to war state, industry, threat, posture, and intelligence
+- electronics and radar rise under air pressure
+- naval research is suppressed for land powers and increased for maritime states
 
-### Critical Needs Failsafe
+### Army
 
-When equipment drops below 30%, manpower below 15%, supply strain exceeds 70%, or surrender progress exceeds 20%, the failsafe activates:
+- adaptive division template progression
+- reactive anti-tank and anti-air responses
+- equipment production driven by stockpile pressure and battlefield conditions
+- construction logic for civilian factories, military factories, dockyards, infrastructure, supply hubs, railways, synthetic refineries, radar stations, and air bases
+- emergency air crisis response with fighter and AA production surges
 
-- Offensives halt (needs crisis defense tier, priority 6000)
-- Infantry equipment production jumps to 3x
-- Tank and aircraft production suppressed to 0.1x-0.3x
-- Military factory construction boosted to 4x
-- Civilian factory construction suppressed to 0.1x
-- Conscription law upgrades forced at priority 100
+### Warfare
 
-This prevents the AI from ignoring its own critical shortages — one of the most common complaints about HOI4 AI across all mods.
+- deep frontline control cascade with emergency halt, cautious defense, offensive push, and full offensive states
+- armor steering toward weak or collapsing enemies
+- front allocation, reserves, and theater demand scaling
+- naval invasion readiness and air/naval production balancing
+- coastal defense and naval invasion threat detection
+- multi-front scaling based on active enemy count
 
-### Engine Define Overrides
+### Grand Strategy
 
-DAI tunes 9 engine-level AI constants that scripts can't reach:
+- threat-based war preparation
+- ally-border defense logic
+- lend-lease and volunteer behavior
+- mobilization, economy law, conscription, PP, and XP spending priorities
+- strategic peace conference weighting with annex, puppet, and liberate priorities
+- puppet behavior suppression and faction leader/member distinction
+- stability-aware and war-support-aware law management
+- civil war focus and nuclear capability awareness
 
-| Define | DAI Value | Effect |
-|---|---|---|
-| `GARRISON_FRACTION` | 0.08 | Stronger default garrisons |
-| `FRONT_TERRAIN_ATTACK_FACTOR` | 0.3 | More cautious in bad terrain |
-| `PLAN_VALUE_TO_EXECUTE` | 0.35 | Execute plans earlier when ready |
-| `PLAN_ATTACK_DEPTH_FACTOR` | 0.8 | Don't overextend |
-| `CONVOY_ESCORT_PRIORITY` | 1.5 | Protect convoys better |
-| `NAVAL_MISSION_SPREAD_BASE` | 0.6 | Better naval coverage |
-| `PRODUCTION_LINE_SWITCH_FACTOR` | 0.7 | Less penalty for switching lines |
-| `EQUIPMENT_SURPLUS_FACTOR` | 0.3 | Use equipment, don't hoard it |
-| `AIR_SUPERIORITY_IMPORTANCE` | 1.3 | Value air superiority more |
+---
+
+## Strategic Posture
+
+One shared posture variable coordinates the entire mod:
+
+- `Buildup`
+- `Defensive`
+- `Balanced`
+- `Offensive`
+- `Total War`
+- `Survival`
+
+This keeps research, construction, production, diplomacy, and frontline behavior aligned instead of letting separate subsystems fight each other.
+
+---
+
+## Crisis Handling
+
+DAI includes a critical-needs failsafe. When equipment, manpower, surrender progress, supply, fuel, or comparable strategic pressure crosses danger thresholds, the AI shifts into damage-control behavior:
+
+- offensive plans are suppressed
+- infantry and support production rises
+- luxury production is reduced
+- military construction and law pressure increase
+- defensive allocation and reserve logic take priority
+
+This is one of the main differences from vanilla-style AI behavior, where countries often continue attacking straight through an obvious collapse.
 
 ---
 
 ## Features
 
-- 22 dynamic country variables driving all AI decisions
-- 6-level strategic posture system coordinating all modules
-- Critical needs failsafe preventing AI self-destruction
-- Supply infrastructure construction (railways, supply hubs, infrastructure)
-- Dynamic garrison scaling with occupied territory
-- Reactive anti-tank production and template deployment
-- 9-tier frontline cascade (emergency halt to pocket closure to full offensive)
-- Naval invasion readiness scoring
-- Engine define tuning (9 NAI constants)
-- 5 intelligence presets (Casual 0.6x to Competitive 1.6x)
-- 4 ideology behaviour profiles (fascist, communist, democratic, neutral)
-- 4 compatibility profiles (Vanilla, Kaiserreich, TNO, BlackICE)
-- Auto-detect mod profile at startup
-- 19 game rules for full customisation
-- Fully modular — any combination of 4 modules
-- No country tags, no dates, no hardcoding
-- No replace_path — fully additive
-- Bucket-staggered evaluation — flat CPU load, no monthly lag spikes
+- Dynamic AI with no country tags, no scripted dates, and no replace-path design
+- 4 independently toggleable modules
+- Global Power Score and competence scaling
+- 6-level strategic posture system
+- Adaptive research weighting across 7 branches
+- Adaptive production across infantry, support, artillery, AT, AA, motorized, armor, fighters, and CAS
+- Supply-aware construction for infrastructure, railways, and supply hubs
+- Occupation-aware garrison logic and colonial defense support
+- Frontline control cascade with readiness gating and emergency shutdowns
+- Armor concentration and theater priority control
+- Reactive anti-tank, anti-air, and air-defense behavior
+- Dynamic naval and invasion planning
+- Expanded threat model including coastal, air, naval, fuel, casualty, resistance, and capital pressure
+- Better differentiation for puppets, faction leaders, members, island states, colonial powers, and landlocked nations
+- Strategic peace conference behavior including annex, puppet, and liberate priorities
+- Engine define tuning beyond what script-only AI mods can change
+- Bucketed evaluation scheduling to avoid monthly CPU spikes
 
 ---
 
-## Game rules
+## Game Rules
 
-| Rule | Default | Options |
-|---|---|---|
-| Compatibility Profile | Auto-Detect | Auto-Detect / Vanilla / Kaiserreich / TNO / BlackICE |
-| Intelligence Preset | Balanced | Casual / Balanced / Historical / Realistic / Competitive |
-| Research Module | Enabled | Enabled / Disabled |
-| Army Module | Enabled | Enabled / Disabled |
-| Warfare Module | Enabled | Enabled / Disabled |
-| Grand Strategy Module | Enabled | Enabled / Disabled |
-| AI Aggression | Normal | Passive / Cautious / Normal / Aggressive / Reckless |
-| AI Naval Behaviour | Balanced | Passive / Defensive / Balanced / Aggressive |
-| AI Diplomatic Stance | Dynamic | Isolationist / Cautious / Dynamic / Interventionist |
-| AI Template Complexity | Standard | Simple / Standard / Advanced |
-| AI Research Focus | Adaptive | Historical / Adaptive / Meta-optimal |
-| Dynamic Power Scaling | On | On / Off |
+The current workspace exposes 13 rule groups:
 
----
+- Compatibility Profile
+- Intelligence Preset
+- Army Module
+- Grand Strategy Module
+- Research Module
+- Warfare Module
+- AI Aggression
+- AI Research Focus
+- AI Template Complexity
+- AI Naval Behaviour
+- AI Diplomatic Stance
+- Dynamic Power Scaling
+- Recalculation Frequency
 
-## Mod compatibility
-
-DAI ships with 4 built-in profiles that auto-detect your mod environment. No patches, no sub-mods, no load order issues.
-
-| Profile | Status |
-|---|---|
-| **Vanilla** | Default, fully tested |
-| **Kaiserreich** | Built-in, auto-detected |
-| **The New Order** | Built-in, auto-detected |
-| **BlackICE** | Built-in, auto-detected |
-
-Each profile maps DAI's abstract categories (BRANCH_INFANTRY, ROLE_BREAKTHROUGH, EQUIP_FIGHTER, etc.) to that mod's specific tech categories, sub-unit types, and equipment archetypes. The build pipeline generates strategies for all profiles; at runtime, only the active profile fires.
+Presets include `Casual`, `Balanced`, `Historical`, `Realistic`, and `Competitive`.
 
 ---
 
-## Load order
+## Compatibility
 
-No hard dependencies. No replace_path. Works in any load order with any mod.
+DAI is fully additive and does not rely on `replace_path`.
+
+Included profiles:
+
+- Vanilla
+- BlackICE
+- Kaiserreich
+- Millennium Dawn
+- Road to 56
+- The Fire Rises
+- The New Order
+
+Auto-detect and manual profile selection are both supported depending on the environment and game-rule choice.
+
+Not intended to be stacked with other full AI overhauls.
 
 ---
 
-## For modders
+## For Modders
 
-### Build pipeline
-
-DAI uses a Python/Jinja2 build system. YAML configs define AI behaviour; Jinja2 templates generate HOI4 script.
+DAI uses a Python + Jinja build pipeline.
 
 ```bash
-python build.py                    # Build with all profiles
-python build.py --validate         # Build and validate output
-python build.py --clean --validate # Clean first, then build and validate
+python build.py
+python build.py --validate
+python build.py --clean --validate
 ```
 
-### Source structure
+Relevant source layout:
 
-| Directory | Purpose |
-|---|---|
-| `config/` | Core YAML config and engine define overrides |
-| `config/modules/` | Per-module AI strategy definitions |
-| `config/presets/` | Intelligence preset multipliers |
-| `config/defines.yaml` | Engine-level NAI define overrides |
-| `profiles/` | Mod compatibility profiles (Vanilla, Kaiserreich, TNO, BlackICE) |
-| `generator/` | Python build pipeline (config loader, Jinja2 renderer, validator) |
-| `generator/templates/` | Jinja2 templates for all generated files |
-| `common/`, `events/`, `localisation/` | Generated HOI4 mod files |
+- `config/` for module configs, presets, and define tuning
+- `profiles/` for compatibility mappings
+- `generator/` and `generator/templates/` for the build pipeline
+- `common/`, `events/`, and `localisation/` for generated game content
 
-### Adding a new profile
+Debug output is available through the core debug event:
 
-1. Create `profiles/yourmod.yaml` with tech categories, sub-units, equipment, and ideology mappings
-2. Add `detection_hints` with a global flag your mod sets at startup
-3. Run `python build.py --validate`
-4. The new profile is automatically included in the build and selectable via game rules
-
-### Debug
-
-Enable debug mode via game rules. Trigger event `dai_core.100` from the console to get a full GPS readout for the selected country.
+```txt
+event dai_core.100
+```

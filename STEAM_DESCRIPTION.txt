@@ -1,75 +1,92 @@
 [h1]DAI - Smarter AI[/h1]
 
-It's 1941. Germany has 200 divisions, medium tanks, and air superiority. It spends the next two years headbutting the Maginot Line while you watch. The Soviet Union has 400 divisions and no support equipment. Japan conquered China, Indochina, and the Dutch East Indies, then garrisoned none of it. Your ally Italy ran out of rifles six months ago and is still launching offensives into Greece. By 1943 the war is already over, not because you outplayed anyone, but because the AI stopped working.
+[b]The AI finally plays the game you're playing.[/b]
 
-This isn't a difficulty problem. It's a decision-making problem. The vanilla AI doesn't evaluate. It doesn't adapt. It doesn't know when to stop.
+Germany bleeds itself dry on the Maginot for two years. Japan conquers half of Asia and garrisons none of it. Italy runs out of rifles and attacks anyway. Britain ignores D-Day prep on its doorstep. The Soviet Union feeds 300 divisions into a meat grinder it should have stopped feeding months ago.
 
-[h2]What Makes This Different From Other AI Mods[/h2]
+This is what vanilla HOI4 AI does. Every single game.
 
-Most AI mods work by scripting: "Germany should do X," "Japan should build Y," "the USSR should attack on Z date." That fixes vanilla, but it also means the mod only works for the countries the author scripted and the scenarios they expected. Load Kaiserreich and the scripts don't apply. Play a weird alt-history and the AI has no instructions.
+DAI fixes all of it.
 
-DAI doesn't script. It [b]evaluates[/b].
+[h2]What Actually Changes[/h2]
 
-Every AI nation gets a power score based on its actual industry, military, technology, and strategic position. That score, combined with 22 real-time variables (supply strain, equipment health, enemy armor tech, occupied territory, manpower pressure) drives every decision. The AI doesn't know it's "Germany." It knows it's a high-industry fascist power with hostile neighbors on flat terrain, and it acts accordingly.
+[b]The AI evaluates 40+ strategic variables every cycle[/b] -- industry, military strength, equipment health, fuel reserves, air threat, naval threat, invasion risk, supply strain, casualties, stability, war support, resistance, manpower, and more. Then it makes decisions that actually make sense.
 
-This means DAI works in vanilla, Kaiserreich, TNO, BlackICE, or any other overhaul, with no patches, no sub-mods, and no country-specific scripting. The AI adapts to [i]whatever situation it's in[/i], not whatever situation the modder expected.
-
-[h2]What You'll Actually Notice[/h2]
-
-[b]The AI builds supply lines.[/b]
-This is the big one. Conquered territory gets infrastructure, supply hubs, and railways. Truck production scales with logistics strain. Offensives don't stall two provinces in because the AI forgot supply exists. This alone fixes half of the mid-war AI collapse.
-
-[b]Conquered territory gets garrisoned.[/b]
-Garrison allocation scales with how much territory the AI holds. Take France? Garrison ratio doubles. Overrun Russia? It keeps climbing. Templates upgrade from basic cavalry to reinforced garrisons with AA as occupation grows. No more resistance spirals handing you free wins.
-
-[b]The AI stops attacking when it shouldn't.[/b]
-A failsafe monitors equipment, manpower, supply, and surrender progress. When things go critical, offensives halt. Factories shift to infantry gear. Tanks and planes get deprioritized. Conscription laws upgrade. The AI fixes its problems instead of throwing manpower into a hole.
-
-[b]Production actually makes sense.[/b]
-The AI doesn't build tanks when it can't equip its infantry. It doesn't build fighters when nobody threatens its airspace. It [i]does[/i] rush anti-tank guns when the enemy fields medium tanks, and switches to AT-focused infantry templates to match. Production reacts to what's happening, not to a preset build order.
-
-[b]Strategy coordinates across the board.[/b]
-Six strategic postures (Buildup, Defensive, Balanced, Offensive, Total War, Survival) tie all four modules together. When the AI shifts to Total War, everything shifts: factory ratio, research priorities, front allocation, conscription, diplomacy. Other mods improve individual systems. DAI makes them work as one.
-
-[b]Frontlines have actual logic.[/b]
-9 priority tiers. Armor concentrates on weak sectors and pulls away from fortified lines. Offensives only launch when equipment, readiness, and manpower thresholds are met. Naval invasions require naval superiority, air cover, and enough equipment, not just transports. Collapsing enemies get rushed. Losing fronts get reinforced.
-
-[h2]Under The Hood[/h2]
-
-[b]Four modules:[/b]
 [list]
-[*] [b]Research[/b] - 7 tech branches weighted by game state, posture, and national profile.
-[*] [b]Army[/b] - Adaptive templates, smart production, supply infrastructure, reactive AT, emergency overrides.
-[*] [b]Warfare[/b] - 9-tier frontline system, armor concentration, theater allocation, readiness-gated invasions.
-[*] [b]Grand Strategy[/b] - Threat-based diplomacy, posture-driven economy, supply scaling, conscription failsafe.
+[*] [b]D-Day doesn't surprise anyone anymore.[/b] Coastal nations detect landing craft research, enemy naval buildup, and troop concentrations. They garrison their coasts before the invasion launches, not after.
+[*] [b]Air superiority actually matters.[/b] The AI scores enemy air power from factory count, tech level, and bomber capability -- not a binary yes/no check. When factories start getting bombed, it triggers emergency fighter and AA production.
+[*] [b]Fuel changes everything.[/b] Nations running low on fuel stop building tanks and motorized divisions. They build synthetic refineries instead. Armored offensives don't launch when the tanks can't move.
+[*] [b]The AI knows when to stop attacking.[/b] Heavy casualties, low equipment, front stagnation, and fuel shortage all push the AI out of suicidal offensives and into holding positions that conserve strength.
+[*] [b]Puppets act like puppets.[/b] Subject nations defend their master's borders, don't start independent wars, and don't send lend-lease they can't afford. Faction leaders coordinate allies and send support.
+[*] [b]Landlocked nations stop building navies.[/b] Hungary no longer wastes factories on dockyards. Island nations massively prioritize their fleets.
+[*] [b]Multi-front wars get real scaling.[/b] Fighting 5 enemies produces a fundamentally different army plan than fighting 1. Reserves, division targets, and front allocation all scale with actual enemy count.
+[*] [b]Capitals get emergency defense.[/b] When enemy troops reach neighboring provinces, everything redirects to survival.
+[*] [b]Civil wars lock down.[/b] No more sending lend-lease abroad or preparing foreign wars while your own country is split in half.
+[*] [b]Peace conferences make sense.[/b] Democracies liberate. Aggressive powers annex. Nuclear states assert dominance. The AI doesn't randomly puppet Luxembourg while ignoring strategic territory.
 [/list]
 
-Each module can be toggled on or off. Don't like how DAI handles research? Turn it off. Only want the warfare improvements? Enable just that. The core scoring engine always runs, but it has near-zero performance cost on its own.
+[h2]How It Works[/h2]
 
-[b]9 engine-level AI constants tuned[/b] including garrison behavior, plan execution thresholds, terrain caution, convoy escort priority, and air superiority weighting. Things that script-only mods can't touch.
+Every AI nation gets a [b]Global Power Score[/b] computed from industry, military, technology, and strategic pressure. That score feeds a competence scalar that makes major powers plan further ahead while minors still behave sensibly.
 
-[h2]Customization[/h2]
+One shared [b]strategic posture[/b] system coordinates the entire AI:
 
 [list]
-[*] [b]5 intelligence presets:[/b] Casual (0.6x) for chill games, Balanced (1.0x) for most players, Historical (1.2x) for realistic behavior, Realistic (1.3x) for a real fight, Competitive (1.6x) for players who want to sweat.
-[*] [b]19 game rules[/b] covering aggression, naval behavior, diplomatic stance, template complexity, research focus, and more.
-[*] Or just hit play. The defaults are tuned for a challenging, believable game.
+[*] [b]Buildup[/b] -- peacetime economy growth
+[*] [b]Defensive[/b] -- hold the line, build reserves
+[*] [b]Balanced[/b] -- standard wartime operations
+[*] [b]Offensive[/b] -- concentrate armor, push weak sectors
+[*] [b]Total War[/b] -- maximum military production
+[*] [b]Survival[/b] -- everything to the front, abandon garrisons
+[/list]
+
+When posture shifts, [i]everything[/i] shifts: production, construction, research, diplomacy, frontline behavior, and laws. No more subsystems fighting each other.
+
+[h2]Full Feature List[/h2]
+[list]
+[*] 4 AI modules: Research, Army, Warfare, Grand Strategy (each toggleable)
+[*] 40+ dynamic evaluation variables updated every cycle
+[*] Multi-signal air threat scoring (tech + factories + bombers, not just XP)
+[*] Multi-signal naval threat scoring (dockyards + tech + submarines)
+[*] Naval invasion threat detection (landing craft + navy + troop buildup)
+[*] Fuel-aware production -- suppresses armor/motorized when fuel is low
+[*] Synthetic refinery, radar station, and air base construction
+[*] Emergency air crisis response (fighter + AA production surge)
+[*] Casualty pressure reducing offensive willingness
+[*] Stability and war support tracking affecting law changes
+[*] Puppet behavior suppression and faction leader coordination
+[*] Landlocked naval suppression and island nation naval priority
+[*] Multi-front army scaling based on active enemy count
+[*] Capital threat emergency defense
+[*] Civil war internal focus
+[*] Resistance pressure driving garrison upgrades
+[*] Front stagnation detection (stops bleeding in stalemates)
+[*] Nuclear capability awareness in peace conferences
+[*] 9-tier frontline control cascade with armor steering
+[*] Adaptive division templates with anti-tank and anti-air reactions
+[*] Supply-aware construction (infrastructure, railways, supply hubs)
+[*] Strategic peace conference with annex/puppet/liberate priorities
+[*] 5 intelligence presets and 13 game rule groups
+[*] Re-evaluation on war declaration, peace, capitulation, and faction joining
+[*] Fully additive design -- no replace_path
 [/list]
 
 [h2]Compatibility[/h2]
-No replace_path. No vanilla file edits. Fully additive. Ships with 7 profiles:
+DAI works as a general AI framework, not a country-script pack.
+
+Included profiles:
 [list]
 [*] Vanilla
-[*] Kaiserreich (auto-detect)
-[*] The New Order (auto-detect)
-[*] BlackICE (auto-detect)
-[*] The Fire Rises (auto-detect)
-[*] The Road to 56 (game rule)
-[*] Millennium Dawn (game rule)
+[*] BlackICE
+[*] Kaiserreich
+[*] Millennium Dawn
+[*] Road to 56
+[*] The Fire Rises
+[*] The New Order
 [/list]
 
-For auto-detecting profiles, just enable both mods and play. For Road to 56 and Millennium Dawn, select the profile in the game rules before starting.
+Auto-detection selects the right profile automatically. Manual override available via game rules.
 
-[b]Not compatible with:[/b] Other AI overhaul mods (Better Mechanics: Frontline AI, Better Mechanics: AI Divisions, etc.). If loaded together, one will override the other.
+[b]Not compatible with:[/b] Other full AI overhaul mods.
 
-[b]Version:[/b] 1.0.0 | [b]HOI4:[/b] 1.15+ | [b]DLC Required:[/b] None
+[b]Version:[/b] 1.1.0 | [b]Supported HOI4:[/b] 1.15+ | [b]DLC Required:[/b] None
