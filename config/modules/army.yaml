@@ -215,6 +215,7 @@ template_roles:
 # =============================================================================
 production_strategies:
   - abstract_equip: EQUIP_INFANTRY
+    production_type: infantry
     base_value: 80
     desc: "Infantry equipment — always needed"
     factors:
@@ -232,6 +233,7 @@ production_strategies:
         factor: 4.0
 
   - abstract_equip: EQUIP_SUPPORT
+    production_type: support
     base_value: 30
     desc: "Support equipment for all support companies"
     factors:
@@ -243,6 +245,7 @@ production_strategies:
         factor: 2.0
 
   - abstract_equip: EQUIP_ARTILLERY
+    production_type: artillery
     base_value: 25
     desc: "Artillery for support and line companies"
     factors:
@@ -254,6 +257,7 @@ production_strategies:
         factor: 1.3
 
   - abstract_equip: EQUIP_ANTI_TANK
+    production_type: anti_tank
     base_value: 10
     desc: "Anti-tank guns"
     factors:
@@ -271,6 +275,7 @@ production_strategies:
         factor: 1.5
 
   - abstract_equip: EQUIP_ANTI_AIR
+    production_type: anti_air
     base_value: 10
     desc: "Anti-air guns"
     factors:
@@ -279,6 +284,7 @@ production_strategies:
         factor: 2.5
 
   - abstract_equip: EQUIP_MOTORIZED
+    production_type: motorized
     base_value: 15
     desc: "Trucks and mechanized equipment"
     factors:
@@ -296,6 +302,7 @@ production_strategies:
         factor: 1.5
 
   - abstract_equip: EQUIP_ARMOUR
+    production_type: armor
     base_value: 10
     desc: "Tank chassis production"
     factors:
@@ -316,6 +323,7 @@ production_strategies:
         factor: 0.1
 
   - abstract_equip: EQUIP_FIGHTER
+    production_type: fighter
     base_value: 20
     desc: "Fighter aircraft"
     factors:
@@ -330,6 +338,7 @@ production_strategies:
         factor: 0.3
 
   - abstract_equip: EQUIP_CAS
+    production_type: cas
     base_value: 10
     desc: "Close air support"
     factors:
@@ -476,27 +485,6 @@ variant_strategies:
         factor: 0.4
 
 # =============================================================================
-# Support Equipment Production Ratio
-# =============================================================================
-support_ratio_strategies:
-  - type: support_production_ratio
-    base_value: 30
-    desc: "Balance between support equipment and main equipment production"
-    factors:
-      - desc: "Boost when at war (support companies vital for combat)"
-        trigger: { has_war: "yes" }
-        factor: 1.5
-      - desc: "Boost when expanding army with manpower"
-        trigger: { has_war: "yes", check_variable: { var: dai_manpower_ratio, compare: greater_than, value: 0.4 } }
-        factor: 1.3
-      - desc: "Reduce during equipment crisis (prioritise main weapons)"
-        trigger: { check_variable: { var: dai_equipment_ratio, compare: less_than, value: 0.3 } }
-        factor: 0.5
-      - desc: "Boost for industrial powers (can afford full support companies)"
-        trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 45 } }
-        factor: 1.4
-
-# =============================================================================
 # Template Upgrade Priorities — which division types upgrade first
 # =============================================================================
 template_prio_strategies:
@@ -539,42 +527,6 @@ template_prio_strategies:
           - desc: "Boost only when large occupied territory"
             trigger: { check_variable: { var: dai_occupied_territory_size, compare: greater_than, value: 40 } }
             factor: 3.0
-
-# =============================================================================
-# BBA Equipment Designer Preferences
-# =============================================================================
-design_score_strategies:
-  - type: score_for_designs
-    entries:
-      - id: tanks
-        base_value: 50
-        desc: "Tank design preferences — reliability and armor"
-        factors:
-          - desc: "Prefer heavier designs when at war"
-            trigger: { has_war: "yes" }
-            factor: 1.5
-          - desc: "Industrial powers can afford better designs"
-            trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 50 } }
-            factor: 1.5
-
-      - id: planes
-        base_value: 50
-        desc: "Plane design preferences — range and reliability"
-        factors:
-          - desc: "Boost when air threat high"
-            trigger: { check_variable: { var: dai_air_threat, compare: greater_than, value: 0.3 } }
-            factor: 1.5
-          - desc: "Boost for industrial powers"
-            trigger: { check_variable: { var: dai_industry_score, compare: greater_than, value: 45 } }
-            factor: 1.3
-
-      - id: ships
-        base_value: 30
-        desc: "Ship design preferences"
-        factors:
-          - desc: "Boost for naval powers"
-            trigger: { check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.3 } }
-            factor: 2.0
 
 # Game rule options
 game_rule_options:
