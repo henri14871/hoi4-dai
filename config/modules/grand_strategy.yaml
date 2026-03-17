@@ -36,6 +36,15 @@ diplomacy_strategies:
       - desc: "Faction leaders must defend allies"
         trigger: { check_variable: { var: dai_is_faction_leader, compare: greater_than, value: 0.5 } }
         factor_add: 30
+      - desc: "Capital crisis limits ally-border commitments"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor_add: -80
+      - desc: "Supply crisis limits external commitments"
+        trigger: { check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.6 } }
+        factor_add: -40
+      - desc: "Equipment crisis limits ally-border support"
+        trigger: { check_variable: { var: dai_equipment_ratio, compare: less_than, value: 0.4 } }
+        factor_add: -40
 
   - type: dont_defend_ally_borders
     base_value: 0
@@ -53,6 +62,15 @@ diplomacy_strategies:
       - desc: "Puppets never refuse to defend master"
         trigger: { check_variable: { var: dai_is_puppet, compare: greater_than, value: 0.5 } }
         factor_add: -50
+      - desc: "Capital crisis overrides ally-border obligations"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor_add: 80
+      - desc: "Supply crisis makes homeland defense the priority"
+        trigger: { check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.6 } }
+        factor_add: 35
+      - desc: "Equipment crisis reduces willingness to defend others"
+        trigger: { check_variable: { var: dai_equipment_ratio, compare: less_than, value: 0.4 } }
+        factor_add: 35
 
   # --- War declaration evaluation ---
   - type: prepare_for_war
@@ -107,6 +125,15 @@ diplomacy_strategies:
       - desc: "No lend-lease during civil war"
         trigger: { check_variable: { var: dai_has_civil_war, compare: greater_than, value: 0.5 } }
         factor_add: -100
+      - desc: "Capital threat ends discretionary lend-lease"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor_add: -80
+      - desc: "Multi-front wars reduce lend-lease generosity"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        factor_add: -40
+      - desc: "Supply crisis reduces lend-lease"
+        trigger: { check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.5 } }
+        factor_add: -30
 
   # --- Volunteer sending ---
   - type: send_volunteers_desire
@@ -125,6 +152,18 @@ diplomacy_strategies:
       - desc: "No volunteers during civil war"
         trigger: { check_variable: { var: dai_has_civil_war, compare: greater_than, value: 0.5 } }
         factor_add: -100
+      - desc: "Capital threat cancels volunteer deployments"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor_add: -80
+      - desc: "Multi-front wars reduce volunteer appetite"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        factor_add: -50
+      - desc: "Low equipment suppresses volunteer support"
+        trigger: { check_variable: { var: dai_equipment_ratio, compare: less_than, value: 0.5 } }
+        factor_add: -40
+      - desc: "Supply crisis reduces volunteer commitments"
+        trigger: { check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.5 } }
+        factor_add: -30
 
 # =============================================================================
 # Economy Strategies — mobilisation timing and factory balance
@@ -159,6 +198,12 @@ economy_strategies:
       - desc: "Total war posture: maximum military shift"
         trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 3.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 4.5 } }
         factor_add: 60
+      - desc: "Capital threat forces military construction"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor_add: 35
+      - desc: "Multi-front wars shift harder into military production"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        factor_add: 20
 
   # --- Equipment stockpile surplus (sell/trade threshold) ---
   - type: equipment_stockpile_surplus_ratio
@@ -212,6 +257,12 @@ economy_law_strategies:
       - desc: "Fascist nations mobilise earlier"
         trigger: { check_variable: { var: dai_political_mil_priority, compare: greater_than, value: 0.1 } }
         priority_add: 20
+      - desc: "Capital threat forces emergency mobilisation"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        priority_add: 30
+      - desc: "Multi-front wars accelerate economic mobilisation"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        priority_add: 20
 
   - desc: "Expand conscription based on manpower needs"
     factors:
@@ -230,6 +281,12 @@ economy_law_strategies:
       - desc: "Cannot upgrade conscription without sufficient war support"
         trigger: { check_variable: { var: dai_war_support_status, compare: less_than, value: 0.3 } }
         priority: -50
+      - desc: "Capital threat increases conscription urgency"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        priority_add: 15
+      - desc: "Multi-front wars increase conscription urgency"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        priority_add: 15
 
 # =============================================================================
 # Peace Conference Strategies (profile-independent)
@@ -312,6 +369,12 @@ pp_spend_strategies:
           - desc: "Reduce when already at total war posture"
             trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 3.5 } }
             factor_add: -30
+          - desc: "Capital threat prioritises law changes"
+            trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+            factor_add: 30
+          - desc: "Multi-front wars prioritise law changes"
+            trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+            factor_add: 20
 
 # =============================================================================
 # Experience Spending Priorities

@@ -340,6 +340,15 @@ naval_strategies:
       - desc: "Major boost for aggressive AI"
         trigger: { check_variable: { var: dai_political_aggression, compare: greater_than, value: 0.1 } }
         factor_add: 15
+      - desc: "Reduce naval invasion planning in multi-front wars"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        factor_add: -25
+      - desc: "Cancel naval invasion focus when the capital is threatened"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor_add: -50
+      - desc: "Cancel naval invasion focus when home waters are under invasion threat"
+        trigger: { check_variable: { var: dai_naval_invasion_threat, compare: greater_than, value: 0.5 } }
+        factor_add: -40
 
   - type: dockyard_to_military_factory_ratio
     base_value: 15
@@ -449,6 +458,15 @@ invasion_strategies:
       - desc: "Suppress when equipment critical"
         trigger: { check_variable: { var: dai_equipment_ratio, compare: less_than, value: 0.4 } }
         factor_add: -40
+      - desc: "Suppress in multi-front wars"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        factor_add: -25
+      - desc: "Suppress when the capital is threatened"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor_add: -60
+      - desc: "Suppress when home waters face immediate invasion danger"
+        trigger: { check_variable: { var: dai_naval_invasion_threat, compare: greater_than, value: 0.5 } }
+        factor_add: -40
 
 # =============================================================================
 # Deep Frontline Control System
@@ -480,6 +498,10 @@ frontline_strategies:
       desc: "Pocket closure — enemy fronts extremely weak, close encirclements"
       enable_triggers:
         - { type: has_war, value: "yes" }
+        - { type: check_variable, var: dai_capital_threatened, compare: less_than, value: 0.5 }
+        - { type: check_variable, var: dai_fuel_status, compare: greater_than, value: 0.4 }
+        - { type: check_variable, var: dai_equipment_ratio, compare: greater_than, value: 0.55 }
+        - { type: check_variable, var: dai_supply_strain, compare: less_than, value: 0.7 }
       enemy_triggers:
         - { type: enemies_strength_ratio_lt, value: 0.3 }
 
@@ -491,6 +513,10 @@ frontline_strategies:
       desc: "Exploitation — enemy collapsing, finish them"
       enable_triggers:
         - { type: has_war, value: "yes" }
+        - { type: check_variable, var: dai_capital_threatened, compare: less_than, value: 0.5 }
+        - { type: check_variable, var: dai_fuel_status, compare: greater_than, value: 0.35 }
+        - { type: check_variable, var: dai_equipment_ratio, compare: greater_than, value: 0.5 }
+        - { type: check_variable, var: dai_supply_strain, compare: less_than, value: 0.75 }
       enemy_triggers:
         - { type: surrender_progress_gt, value: 0.3 }
 
@@ -504,6 +530,26 @@ frontline_strategies:
         - { type: has_war, value: "yes" }
         - { type: check_variable, var: dai_needs_override_active, compare: greater_than, value: 0.5 }
         - { type: check_variable, var: dai_equipment_ratio, compare: less_than, value: 0.35 }
+
+    - name: capital_crisis_defense
+      priority: 5900
+      execution_type: careful
+      execute_order: "no"
+      manual_attack: "yes"
+      desc: "Capital crisis - homeland threatened, stabilize before pursuing opportunities"
+      enable_triggers:
+        - { type: has_war, value: "yes" }
+        - { type: check_variable, var: dai_capital_threatened, compare: greater_than, value: 0.5 }
+
+    - name: supply_crisis_defense
+      priority: 5700
+      execution_type: careful
+      execute_order: "no"
+      manual_attack: "no"
+      desc: "Supply crisis - logistics failing, reduce offensive tempo until the network recovers"
+      enable_triggers:
+        - { type: has_war, value: "yes" }
+        - { type: check_variable, var: dai_supply_strain, compare: greater_than, value: 0.7 }
 
     - name: crisis_defense
       priority: 5000
@@ -523,8 +569,11 @@ frontline_strategies:
       desc: "Full offensive — overwhelming advantage, rush all fronts"
       enable_triggers:
         - { type: has_war, value: "yes" }
+        - { type: check_variable, var: dai_capital_threatened, compare: less_than, value: 0.5 }
         - { type: check_variable, var: dai_war_offensive_readiness, compare: greater_than, value: 80 }
+        - { type: check_variable, var: dai_fuel_status, compare: greater_than, value: 0.5 }
         - { type: check_variable, var: dai_equipment_ratio, compare: greater_than, value: 0.7 }
+        - { type: check_variable, var: dai_supply_strain, compare: less_than, value: 0.5 }
 
     - name: offensive_push
       priority: 3000
@@ -535,6 +584,10 @@ frontline_strategies:
       enable_triggers:
         - { type: has_war, value: "yes" }
         - { type: check_variable, var: dai_war_offensive_readiness, compare: greater_than, value: 60 }
+        - { type: check_variable, var: dai_capital_threatened, compare: less_than, value: 0.5 }
+        - { type: check_variable, var: dai_fuel_status, compare: greater_than, value: 0.4 }
+        - { type: check_variable, var: dai_equipment_ratio, compare: greater_than, value: 0.5 }
+        - { type: check_variable, var: dai_supply_strain, compare: less_than, value: 0.65 }
 
     - name: cautious_defense
       priority: 2000
@@ -579,6 +632,12 @@ frontline_strategies:
         - desc: "Boost when offensive readiness high"
           trigger: { check_variable: { var: dai_war_offensive_readiness, compare: greater_than, value: 60 } }
           factor_add: 50
+        - desc: "Reduce armour concentration when fuel is tight"
+          trigger: { check_variable: { var: dai_fuel_status, compare: less_than, value: 0.4 } }
+          factor_add: -120
+        - desc: "Do not gamble armour when the capital is threatened"
+          trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+          factor_add: -180
 
     - name: armor_away_from_strong
       base_value: -80
@@ -589,6 +648,13 @@ frontline_strategies:
       base_value: 200
       desc: "Rush armour toward collapsing enemy for exploitation"
       enemy_trigger: { type: surrender_progress_gt, value: 0.25 }
+      factors:
+        - desc: "Reduce armour exploitation when fuel is tight"
+          trigger: { check_variable: { var: dai_fuel_status, compare: less_than, value: 0.4 } }
+          factor_add: -120
+        - desc: "Do not chase collapsing enemies while the capital is threatened"
+          trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+          factor_add: -200
 
   # --- FORCE CONCENTRATION ---
   force_concentration:
@@ -645,6 +711,9 @@ frontline_strategies:
         - desc: "Emergency reinforcement when capital threatened"
           trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
           factor_add: 50
+        - desc: "Increase demand when multiple owned theatres need coverage"
+          trigger: { check_variable: { var: dai_owned_theatre_count, compare: greater_than, value: 1 } }
+          factor_add: 20
 
     - name: peacetime_garrison
       base_value: -20
@@ -653,93 +722,33 @@ frontline_strategies:
         - { type: has_war, value: "no" }
 
   # --- AREA PRIORITIES (theatre-level allocation) ---
-  # Area names are universal across all mods (engine-level geography).
-  area_priorities:
-    - area: europe
-      base_value: 50
-      desc: "European theatre"
-      factors:
-        - desc: "Boost when at war"
-          trigger: { has_war: "yes" }
-          factor_add: 30
-        - desc: "Boost when threatened"
-          trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 40 } }
-          factor_add: 30
-        - desc: "Boost when we own European territory"
-          trigger: { any_owned_state_on_continent: "europe" }
-          factor_add: 20
-        - desc: "Boost when ally war threatens our European borders"
-          trigger: { check_variable: { var: dai_faction_border_threat, compare: greater_than, value: 25 }, any_owned_state_on_continent: "europe" }
-          factor_add: 20
-    - area: asia
-      base_value: 30
-      desc: "Asian theatre"
-      factors:
-        - desc: "Boost when at war"
-          trigger: { has_war: "yes" }
-          factor_add: 20
-        - desc: "Major boost when we own Asian territory"
-          trigger: { any_owned_state_on_continent: "asia" }
-          factor_add: 35
-        - desc: "Extra when at war and owning Asian territory"
-          trigger: { has_war: "yes", any_owned_state_on_continent: "asia" }
-          factor_add: 20
-    - area: pacific
-      base_value: 20
-      desc: "Pacific theatre"
-      factors:
-        - desc: "Boost for naval powers at war"
-          trigger: { has_war: "yes", check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.2 } }
-          factor_add: 30
-        - desc: "Boost when we own Pacific territory"
-          trigger: { any_owned_state_on_continent: "oceania" }
-          factor_add: 25
-    - area: africa
-      base_value: 10
-      desc: "African theatre"
-      factors:
-        - desc: "Boost when at war"
-          trigger: { has_war: "yes" }
-          factor_add: 10
-        - desc: "Major boost when we own African territory"
-          trigger: { any_owned_state_on_continent: "africa" }
-          factor_add: 40
-        - desc: "Extra when at war and owning African territory"
-          trigger: { has_war: "yes", any_owned_state_on_continent: "africa" }
-          factor_add: 25
-        - desc: "Boost when ally war threatens our African presence"
-          trigger: { check_variable: { var: dai_faction_border_threat, compare: greater_than, value: 20 }, any_owned_state_on_continent: "africa" }
-          factor_add: 15
-        - desc: "Deprioritize colonial theater when navy cannot defend it"
-          trigger: { any_owned_state_on_continent: "africa", check_variable: { var: dai_naval_threat, compare: greater_than, value: 0.5 } }
-          factor_add: -20
-    - area: middle_east
-      base_value: 15
-      desc: "Middle East theatre"
-      factors:
-        - desc: "Boost when resources needed"
-          trigger: { check_variable: { var: dai_resource_need, compare: greater_than, value: 0.5 } }
-          factor_add: 20
-        - desc: "Boost when we own Middle East territory"
-          trigger: { any_owned_state_on_continent: "middle_east" }
-          factor_add: 30
-        - desc: "Extra when at war and owning Middle East territory"
-          trigger: { has_war: "yes", any_owned_state_on_continent: "middle_east" }
-          factor_add: 15
-    - area: south_america
-      base_value: 5
-      desc: "South American theatre"
-      factors:
-        - desc: "Boost when we own South American territory"
-          trigger: { any_owned_state_on_continent: "south_america" }
-          factor_add: 30
-    - area: north_america
-      base_value: 10
-      desc: "North American theatre"
-      factors:
-        - desc: "Boost when we own North American territory"
-          trigger: { any_owned_state_on_continent: "north_america" }
-          factor_add: 20
+  # Generated symmetrically for each valid area. Ownership gates are injected
+  # by the renderer so no theatre receives static regional bias.
+  area_priority_policy:
+    base_value: 0
+    desc: "Symmetric theatre allocation"
+    factors:
+      - desc: "Owned theatre baseline"
+        trigger: {}
+        factor_add: 35
+      - desc: "Active wartime pressure in owned theatre"
+        trigger: { has_war: "yes" }
+        factor_add: 20
+      - desc: "Threat pressure raises owned theatre priority"
+        trigger: { check_variable: { var: dai_threat_index, compare: greater_than, value: 40 } }
+        factor_add: 15
+      - desc: "Faction border threat raises owned theatre priority"
+        trigger: { check_variable: { var: dai_faction_border_threat, compare: greater_than, value: 20 } }
+        factor_add: 15
+      - desc: "Invasion threat hardens owned theatre defenses"
+        trigger: { check_variable: { var: dai_naval_invasion_threat, compare: greater_than, value: 0.3 } }
+        factor_add: 15
+      - desc: "Multi-theatre empires reinforce owned theatres"
+        trigger: { check_variable: { var: dai_owned_theatre_count, compare: greater_than, value: 2 } }
+        factor_add: 10
+      - desc: "Smarter AI allocates theatres better"
+        trigger: { check_variable: { var: dai_effective_intelligence, compare: greater_than, value: 1.3 } }
+        factor_add: 10
 
   # --- THEATRE DISTRIBUTION DEMAND ---
   theatre_demands:

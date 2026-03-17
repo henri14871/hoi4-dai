@@ -73,9 +73,7 @@ def test_full_build():
         if not (TEST_OUTPUT_DIR / expected).exists():
             missing.append(expected)
 
-    if missing:
-        print(f"\nMISSING FILES: {missing}")
-        return False
+    assert not missing, f"Missing expected generated files: {missing}"
 
     print("\nAll expected files generated.")
 
@@ -87,23 +85,23 @@ def test_full_build():
     for e in errors:
         print(f"  ERROR: {e}")
 
-    if errors:
-        print(f"\nVALIDATION FAILED: {len(errors)} error(s)")
-        return False
+    assert not errors, f"Validation failed with {len(errors)} error(s): {errors}"
 
     print(f"\nVALIDATION PASSED: 0 errors, {len(warnings)} warning(s)")
 
     # Clean up test output
     shutil.rmtree(TEST_OUTPUT_DIR)
     print("Test output cleaned up.")
-    return True
 
 
 if __name__ == "__main__":
-    success = test_full_build()
+    try:
+        test_full_build()
+    except AssertionError as exc:
+        print("\n" + ("=" * 50))
+        print(f"E2E BUILD TEST: FAILED\n{exc}")
+        sys.exit(1)
+
     print("\n" + ("=" * 50))
-    if success:
-        print("E2E BUILD TEST: PASSED")
-    else:
-        print("E2E BUILD TEST: FAILED")
-    sys.exit(0 if success else 1)
+    print("E2E BUILD TEST: PASSED")
+    sys.exit(0)

@@ -70,7 +70,8 @@ variables:
   - { name: dai_strategic_posture,       range: [0, 5],      desc: "Strategic posture (0=Buildup..5=Survival)" }
   - { name: dai_enemy_armor_threat,      range: [0, 1.0],    desc: "Enemy armoured force pressure" }
   - { name: dai_faction_border_threat,   range: [0, 100],    desc: "Threat from neighbours at war with faction allies" }
-  - { name: dai_has_colonial_territory,  range: [0, 1],      desc: "Whether nation owns territory on multiple continents" }
+  - { name: dai_owned_theatre_count,     range: [0, 10],     desc: "Count of mapped theatres where the nation owns territory" }
+  - { name: dai_has_colonial_territory,  range: [0, 1],      desc: "Whether nation owns territory across multiple mapped theatres" }
 
   # --- Situational awareness variables ---
   - { name: dai_naval_invasion_threat,  range: [0, 1.0],  desc: "Enemy amphibious invasion threat level" }

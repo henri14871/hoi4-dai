@@ -231,6 +231,12 @@ production_strategies:
       - desc: "Survival posture: mass produce basics"
         trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 4.5 } }
         factor: 4.0
+      - desc: "Capital under threat: prioritise line equipment"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor: 2.0
+      - desc: "Multi-front wars need deep infantry stocks"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        factor: 1.4
 
   - abstract_equip: EQUIP_SUPPORT
     production_type: support
@@ -243,6 +249,12 @@ production_strategies:
       - desc: "EMERGENCY: boost during needs crisis"
         trigger: { check_variable: { var: dai_needs_override_active, compare: greater_than, value: 0.5 } }
         factor: 2.0
+      - desc: "Capital under threat: expand support capacity"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor: 1.7
+      - desc: "Multi-front wars need extra support equipment"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        factor: 1.4
 
   - abstract_equip: EQUIP_ARTILLERY
     production_type: artillery
@@ -285,6 +297,12 @@ production_strategies:
       - desc: "AIR CRISIS: emergency AA production"
         trigger: { check_variable: { var: dai_air_crisis, compare: greater_than, value: 0.5 } }
         factor: 3.0
+      - desc: "Capital under threat: reinforce homeland AA"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor: 2.0
+      - desc: "Multi-front wars need broader AA coverage"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        factor: 1.5
 
   - abstract_equip: EQUIP_MOTORIZED
     production_type: motorized
@@ -330,6 +348,15 @@ production_strategies:
       - desc: "Suppress tank production when fuel critically low"
         trigger: { check_variable: { var: dai_fuel_status, compare: less_than, value: 0.3 } }
         factor: 0.2
+      - desc: "Suppress tank production during supply crisis"
+        trigger: { check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.6 } }
+        factor: 0.25
+      - desc: "Capital crisis: tanks are secondary to immediate defense"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor: 0.2
+      - desc: "Multi-front wars reduce appetite for tank-heavy plans"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        factor: 0.6
 
   - abstract_equip: EQUIP_FIGHTER
     production_type: fighter
@@ -348,6 +375,9 @@ production_strategies:
       - desc: "AIR CRISIS: emergency fighter production"
         trigger: { check_variable: { var: dai_air_crisis, compare: greater_than, value: 0.5 } }
         factor: 3.0
+      - desc: "Boost fighters when invasion threat rises"
+        trigger: { check_variable: { var: dai_naval_invasion_threat, compare: greater_than, value: 0.3 } }
+        factor: 1.6
 
   - abstract_equip: EQUIP_CAS
     production_type: cas
@@ -405,6 +435,12 @@ construction_strategies:
       - desc: "Total war posture: maximum military production"
         trigger: { check_variable: { var: dai_strategic_posture, compare: greater_than, value: 3.5 }, check_variable_2: { var: dai_strategic_posture, compare: less_than, value: 4.5 } }
         factor: 3.0
+      - desc: "Capital threat: accelerate war industry"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor: 2.5
+      - desc: "Multi-front wars demand more equipment throughput"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        factor: 1.7
 
   - type: dockyard
     base_value: 10
@@ -460,6 +496,12 @@ construction_strategies:
       - desc: "Almost never build at peace"
         trigger: { has_war: "no" }
         factor: 0.1
+      - desc: "Capital threat: secure core logistics"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor: 2.0
+      - desc: "Multi-front wars need deeper hub coverage"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        factor: 1.5
 
   - type: rail_way
     base_value: 5
@@ -477,6 +519,12 @@ construction_strategies:
       - desc: "Rarely build at peace"
         trigger: { has_war: "no" }
         factor: 0.2
+      - desc: "Capital threat: improve strategic rail movement"
+        trigger: { check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 } }
+        factor: 2.0
+      - desc: "Multi-front wars need more rail reinforcement"
+        trigger: { check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 } }
+        factor: 1.5
 
   # --- Synthetic refineries for fuel and rubber (#9) ---
   - type: synthetic_refinery
@@ -510,6 +558,9 @@ construction_strategies:
       - desc: "Major powers build radar early"
         trigger: { check_variable: { var: dai_gps, compare: greater_than, value: 60 } }
         factor_add: 10
+      - desc: "Invasion threat: expand coastal detection"
+        trigger: { check_variable: { var: dai_naval_invasion_threat, compare: greater_than, value: 0.3 } }
+        factor_add: 20
 
   # --- Air bases (#10) ---
   - type: air_base
@@ -522,6 +573,9 @@ construction_strategies:
       - desc: "More during air crisis"
         trigger: { check_variable: { var: dai_air_crisis, compare: greater_than, value: 0.5 } }
         factor_add: 20
+      - desc: "Invasion threat: reinforce coastal air coverage"
+        trigger: { check_variable: { var: dai_naval_invasion_threat, compare: greater_than, value: 0.3 } }
+        factor_add: 15
 
 # =============================================================================
 # Equipment Variant Production — prefer newer variants

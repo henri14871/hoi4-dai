@@ -2,7 +2,7 @@
 
 **The AI finally plays the game you're playing.**
 
-DAI is a modular AI overhaul for Hearts of Iron IV that replaces the AI's broken decision-making with 40+ dynamic evaluation variables. No country scripts. No fixed dates. No tag-specific rails. The AI scores its own economy, military, technology, logistics, fuel, air threat, naval threat, invasion risk, casualties, stability, and political posture -- then makes decisions that actually make sense.
+DAI is a modular AI overhaul for Hearts of Iron IV that replaces the AI's broken decision-making with 40+ dynamic evaluation variables. No country scripts. No fixed dates. No tag-specific rails. No privileged theatres. The AI scores its own economy, military, technology, logistics, fuel, air threat, naval threat, invasion risk, casualties, stability, and political posture -- then makes decisions that actually make sense.
 
 The result: fewer obviously suicidal offensives, proper coastal defense, fuel-aware production, real multi-front scaling, and late-game opponents that stay dangerous instead of collapsing into AI nonsense.
 
@@ -81,7 +81,7 @@ DAI is split into four modules, each toggleable through game rules.
 
 - deep frontline control cascade with emergency halt, cautious defense, offensive push, and full offensive states
 - armor steering toward weak or collapsing enemies
-- front allocation, reserves, and theater demand scaling
+- front allocation, reserves, and symmetric theatre demand scaling
 - naval invasion readiness and air/naval production balancing
 - coastal defense and naval invasion threat detection
 - multi-front scaling based on active enemy count
@@ -139,7 +139,7 @@ This is one of the main differences from vanilla-style AI behavior, where countr
 - Supply-aware construction for infrastructure, railways, and supply hubs
 - Occupation-aware garrison logic and colonial defense support
 - Frontline control cascade with readiness gating and emergency shutdowns
-- Armor concentration and theater priority control
+- Armor concentration and symmetric theatre priority control
 - Reactive anti-tank, anti-air, and air-defense behavior
 - Dynamic naval and invasion planning
 - Expanded threat model including coastal, air, naval, fuel, casualty, resistance, and capital pressure

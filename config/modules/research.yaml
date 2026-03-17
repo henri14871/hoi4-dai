@@ -37,6 +37,14 @@ branches:
         trigger:
           check_variable: { var: dai_strategic_posture, compare: greater_than, value: 4.5 }
         factor: 2.0
+      - desc: "Capital under threat: reinforce core battlefield tech"
+        trigger:
+          check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 }
+        factor: 1.5
+      - desc: "Multi-front wars favor resilient infantry tech"
+        trigger:
+          check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 }
+        factor: 1.3
 
   - abstract: BRANCH_ARMOUR
     base_weight: 50
@@ -64,6 +72,14 @@ branches:
         trigger:
           check_variable: { var: dai_strategic_posture, compare: greater_than, value: 2.5 }
         factor: 1.3
+      - desc: "Suppress armour research when fuel is tight"
+        trigger:
+          check_variable: { var: dai_fuel_status, compare: less_than, value: 0.4 }
+        factor: 0.5
+      - desc: "Suppress armour research during supply crisis"
+        trigger:
+          check_variable: { var: dai_supply_strain, compare: greater_than, value: 0.6 }
+        factor: 0.5
 
   - abstract: BRANCH_AIR
     base_weight: 60
@@ -110,6 +126,18 @@ branches:
         trigger:
           check_variable: { var: dai_gps, compare: greater_than, value: 60 }
         factor: 1.3
+      - desc: "Suppress naval research for landlocked states"
+        trigger:
+          check_variable: { var: dai_is_coastal, compare: less_than, value: 0.5 }
+        factor: 0.1
+      - desc: "Island nations prioritize naval survival"
+        trigger:
+          check_variable: { var: dai_is_island_nation, compare: greater_than, value: 0.5 }
+        factor: 2.0
+      - desc: "Invasion threat raises naval urgency"
+        trigger:
+          check_variable: { var: dai_naval_invasion_threat, compare: greater_than, value: 0.3 }
+        factor: 1.8
 
   - abstract: BRANCH_INDUSTRY
     base_weight: 80
@@ -157,6 +185,14 @@ branches:
         trigger:
           check_variable: { var: dai_air_threat, compare: greater_than, value: 0.5 }
         factor: 1.4
+      - desc: "Capital threat raises detection and coordination needs"
+        trigger:
+          check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 }
+        factor: 1.4
+      - desc: "Multi-front wars reward better battlefield electronics"
+        trigger:
+          check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 }
+        factor: 1.2
 
   - abstract: BRANCH_DOCTRINE
     base_weight: 70
@@ -179,6 +215,14 @@ branches:
         trigger:
           check_variable: { var: dai_industry_score, compare: less_than, value: 15 }
         factor: 0.6
+      - desc: "Capital threat raises doctrine urgency"
+        trigger:
+          check_variable: { var: dai_capital_threatened, compare: greater_than, value: 0.5 }
+        factor: 1.4
+      - desc: "Multi-front wars reward coordinated doctrine"
+        trigger:
+          check_variable: { var: dai_num_active_enemies, compare: greater_than, value: 2 }
+        factor: 1.3
 
 # Research game rule options
 game_rule_options:
