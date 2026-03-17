@@ -1,58 +1,58 @@
 [h1]DAI - Smarter AI[/h1]
 
-It's 1941. Germany has 200 divisions, medium tanks, and air superiority. It spends the next two years headbutting the Maginot Line while you watch. The Soviet Union has 400 divisions and no support equipment. Japan conquered China, Indochina, and the Dutch East Indies — garrisoned none of it. Your ally Italy ran out of rifles six months ago and is still launching offensives into Greece. By 1943 the war is a foregone conclusion, not because you outplayed anyone, but because the AI stopped functioning.
+It's 1941. Germany has 200 divisions, medium tanks, and air superiority. It spends the next two years headbutting the Maginot Line while you watch. The Soviet Union has 400 divisions and no support equipment. Japan conquered China, Indochina, and the Dutch East Indies, then garrisoned none of it. Your ally Italy ran out of rifles six months ago and is still launching offensives into Greece. By 1943 the war is already over, not because you outplayed anyone, but because the AI stopped working.
 
 This isn't a difficulty problem. It's a decision-making problem. The vanilla AI doesn't evaluate. It doesn't adapt. It doesn't know when to stop.
 
 [h2]What Makes This Different From Other AI Mods[/h2]
 
-Most AI mods work by scripting: "Germany should do X," "Japan should build Y," "the USSR should attack on Z date." That fixes vanilla. It also means the mod only works in vanilla, only for the countries the author scripted, and only for the scenarios they anticipated. Load Kaiserreich and the scripts don't apply. Play a weird alternate history and the AI has no instructions.
+Most AI mods work by scripting: "Germany should do X," "Japan should build Y," "the USSR should attack on Z date." That fixes vanilla, but it also means the mod only works for the countries the author scripted and the scenarios they expected. Load Kaiserreich and the scripts don't apply. Play a weird alt-history and the AI has no instructions.
 
 DAI doesn't script. It [b]evaluates[/b].
 
-Every AI nation gets a power score based on its actual industry, military, technology, and strategic position. That score, combined with 22 real-time variables — supply strain, equipment health, enemy armour tech, occupied territory, manpower pressure — drives every decision. The AI doesn't know it's "Germany." It knows it's a high-industry fascist power with hostile neighbours on flat terrain, and it acts accordingly.
+Every AI nation gets a power score based on its actual industry, military, technology, and strategic position. That score, combined with 22 real-time variables (supply strain, equipment health, enemy armor tech, occupied territory, manpower pressure) drives every decision. The AI doesn't know it's "Germany." It knows it's a high-industry fascist power with hostile neighbors on flat terrain, and it acts accordingly.
 
-That means DAI works in vanilla, Kaiserreich, TNO, BlackICE, or any other overhaul — with no patches, no sub-mods, and no country-specific scripting. The AI adapts to [i]whatever situation it's in[/i], not whatever situation the modder anticipated.
+This means DAI works in vanilla, Kaiserreich, TNO, BlackICE, or any other overhaul, with no patches, no sub-mods, and no country-specific scripting. The AI adapts to [i]whatever situation it's in[/i], not whatever situation the modder expected.
 
 [h2]What You'll Actually Notice[/h2]
 
 [b]The AI builds supply lines.[/b]
-This is the one that changes everything. Conquered territory gets infrastructure, supply hubs, and railways. Truck production scales with logistics strain. Offensives don't stall two provinces in because the AI forgot supply exists. This alone fixes half of the mid-war AI collapse.
+This is the big one. Conquered territory gets infrastructure, supply hubs, and railways. Truck production scales with logistics strain. Offensives don't stall two provinces in because the AI forgot supply exists. This alone fixes half of the mid-war AI collapse.
 
 [b]Conquered territory gets garrisoned.[/b]
 Garrison allocation scales with how much territory the AI holds. Take France? Garrison ratio doubles. Overrun Russia? It keeps climbing. Templates upgrade from basic cavalry to reinforced garrisons with AA as occupation grows. No more resistance spirals handing you free wins.
 
 [b]The AI stops attacking when it shouldn't.[/b]
-A failsafe monitors equipment, manpower, supply, and surrender progress. When things go critical, offensives halt. Factories shift to infantry gear. Tanks and planes get suppressed. Conscription laws upgrade. The AI fixes its problems instead of throwing manpower into a hole. This is the behaviour every player wishes the AI had — and no other mod implements it this directly.
+A failsafe monitors equipment, manpower, supply, and surrender progress. When things go critical, offensives halt. Factories shift to infantry gear. Tanks and planes get deprioritized. Conscription laws upgrade. The AI fixes its problems instead of throwing manpower into a hole.
 
 [b]Production actually makes sense.[/b]
-The AI doesn't build tanks when it can't equip its infantry. It doesn't build fighters when nobody threatens its airspace. It [i]does[/i] rush anti-tank guns when the enemy fields medium tanks — and switches to AT-focused infantry templates to match. Production reacts to what's happening, not to a predetermined build order.
+The AI doesn't build tanks when it can't equip its infantry. It doesn't build fighters when nobody threatens its airspace. It [i]does[/i] rush anti-tank guns when the enemy fields medium tanks, and switches to AT-focused infantry templates to match. Production reacts to what's happening, not to a preset build order.
 
 [b]Strategy coordinates across the board.[/b]
-Six strategic postures — Buildup, Defensive, Balanced, Offensive, Total War, Survival — unify all four modules. When the AI shifts to Total War, everything shifts together: factory ratio, research priorities, front allocation, conscription, diplomacy. Other mods improve individual systems. DAI makes them work as one.
+Six strategic postures (Buildup, Defensive, Balanced, Offensive, Total War, Survival) tie all four modules together. When the AI shifts to Total War, everything shifts: factory ratio, research priorities, front allocation, conscription, diplomacy. Other mods improve individual systems. DAI makes them work as one.
 
 [b]Frontlines have actual logic.[/b]
-9 priority tiers. Armour concentrates on weak sectors and pulls away from fortified lines. Offensives only launch when equipment, readiness, and manpower thresholds are met. Naval invasions require naval superiority, air cover, and sufficient equipment — not just transports. Collapsing enemies get rushed. Losing fronts get reinforced.
+9 priority tiers. Armor concentrates on weak sectors and pulls away from fortified lines. Offensives only launch when equipment, readiness, and manpower thresholds are met. Naval invasions require naval superiority, air cover, and enough equipment, not just transports. Collapsing enemies get rushed. Losing fronts get reinforced.
 
 [h2]Under The Hood[/h2]
 
 [b]Four modules:[/b]
 [list]
-[*] [b]Research[/b] — 7 tech branches weighted by game state, posture, and national profile.
-[*] [b]Army[/b] — Adaptive templates, intelligent production, supply infrastructure, reactive AT, emergency overrides.
-[*] [b]Warfare[/b] — 9-tier frontline cascade, armour Schwerpunkt, theatre allocation, readiness-gated invasions.
-[*] [b]Grand Strategy[/b] — Threat-based diplomacy, posture-driven economy, supply scaling, conscription failsafe.
+[*] [b]Research[/b] - 7 tech branches weighted by game state, posture, and national profile.
+[*] [b]Army[/b] - Adaptive templates, smart production, supply infrastructure, reactive AT, emergency overrides.
+[*] [b]Warfare[/b] - 9-tier frontline system, armor concentration, theater allocation, readiness-gated invasions.
+[*] [b]Grand Strategy[/b] - Threat-based diplomacy, posture-driven economy, supply scaling, conscription failsafe.
 [/list]
 
-Each module can be toggled on or off independently. Don't like how DAI handles research? Turn it off. Only want the warfare improvements? Enable just that. The core scoring engine always runs, but it has near-zero performance cost on its own.
+Each module can be toggled on or off. Don't like how DAI handles research? Turn it off. Only want the warfare improvements? Enable just that. The core scoring engine always runs, but it has near-zero performance cost on its own.
 
-[b]9 engine-level AI constants tuned[/b] — garrison behaviour, plan execution thresholds, terrain caution, convoy escort priority, air superiority weighting. Things that script-only mods can't touch.
+[b]9 engine-level AI constants tuned[/b] including garrison behavior, plan execution thresholds, terrain caution, convoy escort priority, and air superiority weighting. Things that script-only mods can't touch.
 
-[h2]Customisation[/h2]
+[h2]Customization[/h2]
 
 [list]
-[*] [b]5 intelligence presets:[/b] Casual (0.6x) for narrative games, Balanced (1.0x) for most players, Historical (1.2x) for plausible behaviour, Realistic (1.3x) for a real fight, Competitive (1.6x) for players who want to sweat.
-[*] [b]19 game rules[/b] covering aggression, naval behaviour, diplomatic stance, template complexity, research focus, and more.
+[*] [b]5 intelligence presets:[/b] Casual (0.6x) for chill games, Balanced (1.0x) for most players, Historical (1.2x) for realistic behavior, Realistic (1.3x) for a real fight, Competitive (1.6x) for players who want to sweat.
+[*] [b]19 game rules[/b] covering aggression, naval behavior, diplomatic stance, template complexity, research focus, and more.
 [*] Or just hit play. The defaults are tuned for a challenging, believable game.
 [/list]
 
@@ -70,6 +70,6 @@ No replace_path. No vanilla file edits. Fully additive. Ships with 7 profiles:
 
 For auto-detecting profiles, just enable both mods and play. For Road to 56 and Millennium Dawn, select the profile in the game rules before starting.
 
-[b]Not compatible with:[/b] Other AI overhaul mods (Better Mechanics: Frontline AI, Better Mechanics: AI Divisions, etc.) — if loaded together, one will override the other.
+[b]Not compatible with:[/b] Other AI overhaul mods (Better Mechanics: Frontline AI, Better Mechanics: AI Divisions, etc.). If loaded together, one will override the other.
 
 [b]Version:[/b] 1.0.0 | [b]HOI4:[/b] 1.15+ | [b]DLC Required:[/b] None
