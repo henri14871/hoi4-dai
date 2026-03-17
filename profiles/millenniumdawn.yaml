@@ -1,0 +1,240 @@
+###############################################################################
+# DAI Profile for Millennium Dawn: A Modern Day Mod
+# Total conversion set in the year 2000. All game content is different.
+#
+# NOTE: MD does not set a global flag on startup.
+# Select this profile manually via game rule.
+###############################################################################
+
+profile_name: millenniumdawn
+game_version: "1.15.*"
+description: "Millennium Dawn: A Modern Day Mod"
+priority: 10
+
+# MD does not set an unconditional startup global flag.
+detection_hints: {}
+
+area_mappings: [europe, asia, pacific, africa, middle_east, south_america, north_america]
+
+# Technology category mappings — MD uses CAT_* prefix
+tech_categories:
+  BRANCH_INFANTRY:
+    - CAT_inf
+    - CAT_inf_wep
+    - CAT_special_forces
+    - CAT_airmobile
+    - CAT_airborne
+    - CAT_marine
+    - CAT_support_weapons
+    - CAT_l_drone
+    - CAT_cnc
+    - CAT_nvg
+  BRANCH_ARMOUR:
+    - CAT_armor
+    - CAT_tanks
+    - CAT_mbt
+    - CAT_rec_tank
+    - CAT_afv
+    - CAT_ifv
+    - CAT_apc
+    - CAT_armour
+    - CAT_armor_engines
+    - CAT_armor_weapons
+    - CAT_afv_weapons
+    - CAT_computer_systems
+    - CAT_artillery
+    - CAT_arty
+    - CAT_sp_arty
+    - CAT_sp_r_arty
+    - CAT_art_ammo
+    - CAT_aa
+    - CAT_l_aa
+    - CAT_sp_aa
+    - CAT_at
+    - CAT_l_at
+    - CAT_h_at
+  BRANCH_AIR:
+    - CAT_air_eqp
+    - CAT_fixed_wing
+    - CAT_fighter
+    - CAT_s_fighter
+    - CAT_l_fighter
+    - CAT_l_s_fighter
+    - CAT_mr_fighter
+    - CAT_as_fighter
+    - CAT_cas
+    - CAT_str_bomber
+    - CAT_naval_plane
+    - CAT_drones
+    - CAT_a_uav
+    - CAT_heli
+    - CAT_trans_heli
+    - CAT_atk_heli
+    - CAT_trans_plane
+    - CAT_awacs
+    - CAT_avionics
+    - CAT_air_wpn
+    - CAT_air_spc
+    - CAT_air_stealth
+    - CAT_air_engine
+    - CAT_air_countermeasures
+    - CAT_air_to_air_weapons
+    - CAT_air_ground_weapons
+    - CAT_air_naval_weapons
+    - CAT_wings
+    - CAT_air_camera
+    - CAT_h_air
+    - CAT_medium_plane
+    - CAT_small_plane
+    - CAT_large_plane
+    - CAT_naval_air
+  BRANCH_NAVAL:
+    - CAT_naval_all
+    - CAT_naval_modules
+    - CAT_naval_engine
+    - CAT_naval_electronics
+    - CAT_naval_armament
+    - CAT_naval_cannons
+    - CAT_torpedoes
+    - CAT_sub
+    - CAT_nuke_sub
+    - CAT_atk_sub
+    - CAT_surface_ship
+    - CAT_destroyer
+    - CAT_frigate
+    - CAT_corvette
+    - CAT_cruiser
+    - CAT_carrier
+    - CAT_n_cv
+    - CAT_cv
+    - CAT_landing_craft
+    - CAT_pds
+    - CAT_as_missiles
+    - CAT_aa_missiles
+    - CAT_vls_systems
+  BRANCH_INDUSTRY:
+    - CAT_Civilian
+    - CAT_industry
+    - CAT_construction_tech
+    - CAT_infrastructure
+    - CAT_nuclear
+    - CAT_nuclear_reactors
+    - CAT_nuclear_weapons
+    - CAT_renewable
+    - CAT_fuel_oil
+    - CAT_excavation_tech
+    - CAT_agriculture_tech
+    - CAT_fortifications
+    - CAT_nfibers
+    - CAT_3d
+    - CAT_genes
+  BRANCH_ELECTRONICS:
+    - CAT_computing_tech
+    - CAT_encryption_tech
+    - CAT_decryption_tech
+    - CAT_internet_tech
+    - CAT_ai
+  BRANCH_DOCTRINE:
+    - CAT_land_doctrine
+    - CAT_air_doctrine
+    - CAT_naval_doctrine
+    - CAT_western
+    - CAT_eastern
+    - CAT_offensive_doctrine
+    - CAT_defensive_doctrine
+    - CAT_unconventional
+    - CAT_equipment_doctrines
+    - CAT_training
+    - CAT_tech_doctrines
+    - special_forces_doctrine
+    - CAT_legacy_doctrines
+
+# Sub-unit type mappings — MD uses unique naming
+sub_units:
+  ROLE_LINE_INFANTRY:
+    - L_Inf_Bat
+    - Mot_Inf_Bat
+    - Mech_Inf_Bat
+    - Arm_Inf_Bat
+    - Militia_Bat
+    - Mot_Militia_Bat
+  ROLE_BREAKTHROUGH:
+    - armor_Bat
+    - L_arm_Bat
+    - armor_Comp
+  ROLE_MOBILE:
+    - Mot_Inf_Bat
+    - Mech_Inf_Bat
+    - Arm_Inf_Bat
+    - Mot_Recce_Comp
+    - Mech_Recce_Comp
+    - Arm_Recce_Comp
+    - armor_Recce_Comp
+  ROLE_GARRISON:
+    - Militia_Bat
+    - Mot_Militia_Bat
+    - L_Recce_Comp
+  ROLE_SPECIAL:
+    - L_Marine_Bat
+    - L_Marine_Cdo_Bat
+    - Mech_Marine_Bat
+    - Arm_Marine_Bat
+    - L_Air_Inf_Bat
+    - Mech_Air_Inf_Bat
+    - L_Ranger_Bat
+    - Special_Forces
+    - attack_helo_bat
+
+# Equipment archetype mappings
+equipment:
+  EQUIP_INFANTRY:     [Inf_equipment]
+  EQUIP_ARTILLERY:    [artillery_equipment]
+  EQUIP_ANTI_TANK:    [L_AT_Equipment, H_AT_Equipment]
+  EQUIP_ANTI_AIR:     [AA_Equipment]
+  EQUIP_MOTORIZED:    [util_vehicle_equipment]
+  EQUIP_ARMOUR:       [medium_tank_chassis, heavy_tank_chassis]
+  EQUIP_FIGHTER:      [small_plane_airframe]
+  EQUIP_CAS:          [small_plane_airframe]
+  EQUIP_BOMBER:       [medium_plane_airframe, large_plane_airframe]
+  EQUIP_CAPITAL_SHIP: [carrier, battleship]
+  EQUIP_SCREEN:       [destroyer, frigate, corvette, cruiser]
+  EQUIP_SUBMARINE:    [attack_submarine, missile_submarine]
+  EQUIP_CONVOY:       [convoy]
+  EQUIP_SUPPORT:      [cnc_equipment]
+
+# Ideologies — MD has 5 groups
+ideologies:
+  democratic:   { category: defensive,  aggression: -0.15 }
+  communism:    { category: moderate,   aggression: 0.15 }
+  fascism:      { category: aggressive, aggression: 0.30 }
+  neutrality:   { category: neutral,    aggression: 0.0 }
+  nationalist:  { category: moderate,   aggression: 0.20 }
+
+# MD completely replaces laws — economy uses military spending tiers
+economy_laws:
+  - defence_00
+  - defence_01
+  - defence_02
+  - defence_03
+  - defence_04
+  - defence_05
+  - defence_06
+  - defence_07
+  - defence_08
+  - defence_09
+
+# Conscription
+conscription_laws:
+  - no_military
+  - volunteer_army
+  - partial_draft_army
+  - draft_army
+
+# Trade
+trade_laws:
+  - md_closed_economy
+  - consumption_economy
+  - semi_consumption_economy
+  - mixed_economy
+  - export_economy
+  - globalized_trade_economy

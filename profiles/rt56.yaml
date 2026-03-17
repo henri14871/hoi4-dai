@@ -1,0 +1,192 @@
+###############################################################################
+# DAI Profile for The Road to 56
+# RT56 extends vanilla — most vanilla tokens remain valid.
+# This profile adds RT56-unique content on top of vanilla mappings.
+#
+# NOTE: RT56 does not set a reliable unconditional global flag on startup.
+# Detection uses has_tech_category for r56_rdf which only exists when RT56
+# is loaded. If auto-detection fails, select manually via game rule.
+###############################################################################
+
+profile_name: rt56
+game_version: "1.15.*"
+description: "The Road to 56"
+priority: 10
+
+# RT56 does not set a single unconditional startup flag.
+# Leaving detection_hints empty — use game rule override.
+detection_hints: {}
+
+area_mappings: [europe, asia, pacific, africa, middle_east, south_america, north_america]
+
+# Technology category mappings (vanilla + RT56 additions)
+tech_categories:
+  BRANCH_INFANTRY:
+    - infantry_weapons
+    - r56_desert_infantry_tech
+    - r56_jaeger_infantry_tech
+    - r56_jungle_infantry_tech
+    - r56_marines_infantry_tech
+    - r56_mountain_infantry_tech
+    - r56_paratroops_infantry_tech
+    - r56_special_forces_training_tech
+    - r56_shock_infantry_tech
+    - anti_tank_infantry_weapons
+  BRANCH_ARMOUR:
+    - armor
+    - cat_light_armor
+    - cat_medium_armor
+    - cat_heavy_armor
+    - armored_cars_tech
+    - armor_variant_tech
+    - amphibious_armor_tech
+    - cat_anti_tank
+  BRANCH_AIR:
+    - light_air
+    - medium_air
+    - heavy_air
+    - naval_air
+    - fighter_bomber
+    - maritime
+    - asw_tech
+    - cat_air_torpedoes
+    - transport_plane_tech
+    - cat_air_guns
+    - cat_air_engine
+    - cat_air_bombs
+  BRANCH_NAVAL:
+    - naval_equipment
+    - cl_tech
+    - cvl_tech
+    - torpedo_equipment
+    - naval_armor_tech
+    - naval_gunnery_tech
+    - naval_shell_tech
+    - damage_control_tech
+  BRANCH_INDUSTRY:
+    - industry
+    - construction_tech
+    - synth_resources
+    - cat_synth_rubber
+    - cat_synth_oil
+    - refining_tech
+    - steel_tech
+    - metallurgy_tech
+    - aluminium_tech
+    - railway_construction_tech
+    - supply_node_tech
+    - concentrated_industry_category
+    - dispersed_industry_category
+  BRANCH_ELECTRONICS:
+    - electronics
+    - encryption_tech
+    - radar_tech
+    - computing_tech
+    - r56_rdf
+    - camo_tech
+  BRANCH_DOCTRINE:
+    - land_doctrine
+    - naval_doctrine
+    - air_doctrine
+    - special_forces_doctrine
+    - cat_shocktroops_doctrine
+    - cat_mountaineers_doctrine
+    - cat_marines_doctrine
+    - cat_paratroopers_doctrine
+    - cat_r56_guerilla_warfare
+
+# Sub-unit type mappings (vanilla + RT56 additions)
+sub_units:
+  ROLE_LINE_INFANTRY:
+    - infantry
+    - militia
+    - irregular_infantry
+    - jaeger
+    - jungletroop
+    - desertinfantry
+    - shocktroop
+    - mot_shocktroop
+    - mech_shocktroop
+  ROLE_BREAKTHROUGH:
+    - medium_armor
+    - heavy_armor
+    - modern_armor
+    - super_heavy_armor
+    - light_armor
+  ROLE_MOBILE:
+    - motorized
+    - mechanized
+    - armored_car
+    - amphibious_mechanized
+  ROLE_GARRISON:
+    - cavalry
+    - garrison
+  ROLE_SPECIAL:
+    - marine
+    - marine_commando
+    - mountaineers
+    - paratrooper
+    - ranger_battalion
+    - bicycle_battalion
+
+# Support company mappings
+support_units:
+  engineer: engineer
+  recon: recon
+  artillery: artillery
+  anti_tank: anti_tank
+  anti_air: anti_air
+  logistics: logistics
+  maintenance: maintenance
+  signal: signal
+  field_hospital: field_hospital
+  military_police: military_police
+
+# Equipment archetype mappings (vanilla + RT56 additions)
+equipment:
+  EQUIP_INFANTRY:     [infantry_equipment]
+  EQUIP_ARTILLERY:    [artillery_equipment, rocket_artillery_equipment, super_heavy_artillery_equipment]
+  EQUIP_ANTI_TANK:    [anti_tank_equipment]
+  EQUIP_ANTI_AIR:     [anti_air_equipment]
+  EQUIP_MOTORIZED:    [motorized_equipment, mechanized_equipment, motorized_rocket_equipment, motorbike_equipment, armored_car_equipment]
+  EQUIP_ARMOUR:       [light_tank_chassis, medium_tank_chassis, heavy_tank_chassis, modern_tank_chassis, super_heavy_tank_chassis, amphibious_tank_chassis]
+  EQUIP_FIGHTER:      [small_plane_airframe]
+  EQUIP_CAS:          [small_plane_airframe, fighter_bomber_equipment]
+  EQUIP_BOMBER:       [medium_plane_airframe, large_plane_airframe]
+  EQUIP_CAPITAL_SHIP: [ship_hull_heavy, ship_hull_carrier]
+  EQUIP_SCREEN:       [ship_hull_light, ship_hull_cruiser]
+  EQUIP_SUBMARINE:    [ship_hull_submarine]
+  EQUIP_CONVOY:       [convoy]
+  EQUIP_SUPPORT:      [support_equipment]
+
+# Ideologies — RT56 uses vanilla groups with expanded sub-ideologies
+ideologies:
+  democratic:  { category: defensive,  aggression: -0.15 }
+  communism:   { category: moderate,   aggression: 0.15 }
+  fascism:     { category: aggressive, aggression: 0.30 }
+  neutrality:  { category: neutral,    aggression: 0.0 }
+
+# Economy law progression (vanilla + RT56 additions)
+economy_laws:
+  - civilian_economy
+  - low_economic_mobilisation
+  - partial_economic_mobilisation
+  - war_economy
+  - tot_economic_mobilisation
+
+# Conscription law progression (RT56 adds disarmed_nation at bottom)
+conscription_laws:
+  - disarmed_nation
+  - volunteer_only
+  - limited_conscription
+  - extensive_conscription
+  - service_by_requirement
+  - all_adults_serve
+  - scraping_the_barrel
+
+# Trade law options
+trade_laws:
+  - free_trade
+  - export_focus
+  - limited_exports
+  - closed_economy

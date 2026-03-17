@@ -6,7 +6,7 @@ DAI is a modular, fully dynamic AI overhaul for Hearts of Iron IV. Every decisio
 
 The result: AI that builds supply infrastructure when it conquers territory, garrisons occupied land properly, stops attacking when it runs out of equipment, concentrates armour on weak sectors, and coordinates production, research, and diplomacy into a coherent strategy.
 
-**Version:** 1.1.0 | **HOI4:** 1.15.* | **DLC Required:** None
+**Version:** 1.0.0 | **HOI4:** 1.17.4.1+ | **DLC Required:** None
 
 ---
 

@@ -144,28 +144,13 @@ equipment:
   EQUIP_ANTI_AIR: []
   EQUIP_MOTORIZED: []
 ideologies:
-- national_populist_subtype
-- paternal_autocrat_subtype
-- totalist_subtype
-- types
-- market_liberal_subtype
-- ideologies
-- syndicalist
-- syndicalist_subtype
-- radical_socialist_subtype
-- authoritarian_democrat
-- social_democrat_subtype
-- social_liberal
-- modifiers
-- market_liberal
-- social_democrat
-- paternal_autocrat
-- social_conservative_subtype
-- rules
-- social_conservative
-- authoritarian_democrat_subtype
-- totalist
-- social_liberal_subtype
-- national_populist
-- color
-- radical_socialist
+  totalist:              { category: aggressive, aggression: 0.25 }
+  syndicalist:           { category: moderate,   aggression: 0.10 }
+  radical_socialist:     { category: moderate,   aggression: 0.05 }
+  social_democrat:       { category: defensive,  aggression: -0.15 }
+  social_liberal:        { category: defensive,  aggression: -0.10 }
+  market_liberal:        { category: neutral,    aggression: -0.05 }
+  social_conservative:   { category: neutral,    aggression: 0.0 }
+  authoritarian_democrat: { category: neutral,   aggression: 0.05 }
+  paternal_autocrat:     { category: moderate,   aggression: 0.15 }
+  national_populist:     { category: aggressive, aggression: 0.30 }
