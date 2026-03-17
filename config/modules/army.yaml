@@ -345,7 +345,7 @@ production_strategies:
 # Civilian vs military factory priorities (profile-independent)
 # =============================================================================
 construction_strategies:
-  - type: civilian_factory
+  - type: industrial_complex
     base_value: 50
     desc: "Civilian factories for economic growth"
     factors:
@@ -437,7 +437,7 @@ construction_strategies:
         trigger: { has_war: "no" }
         factor: 0.1
 
-  - type: railway
+  - type: rail_way
     base_value: 5
     desc: "Railways for supply delivery"
     factors:
